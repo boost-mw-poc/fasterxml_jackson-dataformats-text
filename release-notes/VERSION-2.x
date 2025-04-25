@@ -14,7 +14,11 @@ Active Maintainers:
 === Releases ===
 ------------------------------------------------------------------------
 
-2.19.0-rc2 (07-Apr-2025)
+2.20.0 (not yet released)
+
+-
+
+2.19.0 (24-Apr-2025)
 
 #31: (csv) Header names seem to be trimmed
  (reported by Robert D)
