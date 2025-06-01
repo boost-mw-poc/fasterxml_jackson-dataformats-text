@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.*;
 import tools.jackson.core.JsonParser.NumberType;
+import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.io.SerializedString;
 
 import tools.jackson.databind.ObjectReader;
@@ -98,17 +99,21 @@ public class StreamingCSVReadTest extends ModuleTestBase
         assertEquals(numStr.length(), parser.getString(w));
         assertEquals(numStr, w.toString());
 
+        // 31-May-2025, tatu: as per [dataformats-text#564] must coerce first
+        assertTrue(parser.isExpectedNumberIntToken());
         assertEquals(a, parser.getIntValue());
         assertEquals((long) a, parser.getLongValue());
 
         assertEquals("b", parser.nextName());
         assertEquals(""+b, parser.nextStringValue());
+        assertTrue(parser.isExpectedNumberIntToken());
         assertEquals((long) b, parser.getLongValue());
         assertEquals(b, parser.getIntValue());
 
         assertTrue(parser.nextName(new SerializedString("c")));
 
         assertToken(JsonToken.VALUE_STRING, parser.nextToken());
+        assertTrue(parser.isExpectedNumberIntToken());
         assertEquals(c, parser.getIntValue());
         assertEquals((long) c, parser.getLongValue());
 
@@ -120,13 +125,23 @@ public class StreamingCSVReadTest extends ModuleTestBase
 
     private void _testIntsExpected(boolean useBytes, int a, int b, int c) throws Exception {
         try (CsvParser parser = _parser(String.format("%d,%d,%d\n", a, b, c), useBytes, ABC_SCHEMA)) {
+            _verifyGetNumberTypeFail(parser, "null");
             assertToken(JsonToken.START_OBJECT, parser.nextToken());
+            _verifyGetNumberTypeFail(parser, "START_OBJECT");
 
             assertToken(JsonToken.PROPERTY_NAME, parser.nextToken());
             assertEquals("a", parser.currentName());
+            _verifyGetNumberTypeFail(parser, "FIELD_NAME");
 
             // Reported as String BUT may be coerced
             assertToken(JsonToken.VALUE_STRING, parser.nextToken());
+            // Exception before conversion
+            try {
+                parser.getIntValue();
+                fail("Should not pass");
+            } catch (StreamReadException e) {
+                _verifyNonNumberTypeException(e, "VALUE_STRING");
+            }
             assertTrue(parser.isExpectedNumberIntToken());
             assertEquals(a, parser.getIntValue());
             assertToken(JsonToken.VALUE_NUMBER_INT, parser.currentToken());
@@ -146,7 +161,11 @@ public class StreamingCSVReadTest extends ModuleTestBase
             assertToken(JsonToken.VALUE_NUMBER_INT, parser.currentToken());
 
             assertToken(JsonToken.END_OBJECT, parser.nextToken());
-            assertNull(parser.nextToken());
+            _verifyGetNumberTypeFail(parser, "END_OBJECT");
+
+            parser.close();
+            _verifyGetNumberTypeFail(parser, "null");
+            assertNull(parser.currentToken());
         }
     }
 
@@ -159,10 +178,21 @@ public class StreamingCSVReadTest extends ModuleTestBase
         assertToken(JsonToken.PROPERTY_NAME, parser.nextToken());
         assertEquals("a", parser.currentName());
         assertEquals(""+a, parser.nextStringValue());
+        // 31-May-2025, tatu: as per [dataformats-text#564] must coerce first
+        assertTrue(parser.isExpectedNumberIntToken());
         assertEquals(a, parser.getLongValue());
 
         assertEquals("b", parser.nextName());
         assertEquals(""+b, parser.nextStringValue());
+        // Exception before conversion
+        try {
+            parser.getLongValue();
+            fail("Should not pass");
+        } catch (StreamReadException e) {
+            _verifyNonNumberTypeException(e, "VALUE_STRING");
+        }
+        
+        assertTrue(parser.isExpectedNumberIntToken());
         assertEquals(b, parser.getLongValue());
 
         assertToken(JsonToken.END_OBJECT, parser.nextToken());
@@ -181,19 +211,20 @@ public class StreamingCSVReadTest extends ModuleTestBase
         assertToken(JsonToken.PROPERTY_NAME, parser.nextToken());
         assertEquals("a", parser.currentName());
         assertEquals(""+a, parser.nextStringValue());
-        assertEquals(a, parser.getDoubleValue());
-        assertEquals((float) a, parser.getFloatValue());
+        // 31-May-2025, tatu: as per [dataformats-text#564] shouldn't work
+//        assertEquals(a, parser.getDoubleValue());
+//        assertEquals((float) a, parser.getFloatValue());
 
         assertEquals("b", parser.nextName());
         assertEquals(""+b, parser.nextStringValue());
-        assertEquals((float) b, parser.getFloatValue());
-        assertEquals(b, parser.getDoubleValue());
+//        assertEquals((float) b, parser.getFloatValue());
+//        assertEquals(b, parser.getDoubleValue());
 
         assertTrue(parser.nextName(new SerializedString("c")));
 
         assertToken(JsonToken.VALUE_STRING, parser.nextToken());
-        assertEquals(c, parser.getDoubleValue());
-        assertEquals((float) c, parser.getFloatValue());
+//        assertEquals(c, parser.getDoubleValue());
+//        assertEquals((float) c, parser.getFloatValue());
 
         assertToken(JsonToken.END_OBJECT, parser.nextToken());
         assertNull(parser.nextToken());
@@ -212,5 +243,17 @@ public class StreamingCSVReadTest extends ModuleTestBase
             p = r.createParser(csv);
         }
         return (CsvParser) p;
+    }
+
+    // In Jackson 3.x, non-Number token should NOT throw exception for parser.getNumberType()
+    // but return null;
+    private void _verifyGetNumberTypeFail(JsonParser p, String token) throws Exception
+    {
+        assertNull(p.getNumberType());
+    }
+
+    private void _verifyNonNumberTypeException(Exception e, String token) throws Exception
+    {
+        verifyException(e, "Current token ("+token+") not numeric, cannot use numeric");
     }
 }

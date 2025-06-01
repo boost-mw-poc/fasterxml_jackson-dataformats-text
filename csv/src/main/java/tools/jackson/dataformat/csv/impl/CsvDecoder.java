@@ -1157,7 +1157,6 @@ public class CsvDecoder
     protected void _parseNumericValue(boolean exactNumber)
         throws JacksonException
     {
-        // Int or float?
         if (looksLikeInt()) {
             _parseIntValue();
             return;

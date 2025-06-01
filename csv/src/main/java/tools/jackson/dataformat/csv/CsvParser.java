@@ -1067,46 +1067,58 @@ public class CsvParser
 
     @Override
     public NumberType getNumberType() throws JacksonException {
-        return _reader.getNumberType();
+        // 31-May-2025, tatu: in 3.x no longer exception but null for non-number token
+        if (_currToken == JsonToken.VALUE_NUMBER_INT) {
+            return _reader.getNumberType();
+        }
+        return null;
     }
 
     @Override
     public Number getNumberValue() throws JacksonException {
+        _verifyNumberToken();
         return _reader.getNumberValue(false);
     }
 
     @Override
     public Number getNumberValueExact() throws JacksonException {
+        _verifyNumberToken();
         return _reader.getNumberValue(true);
     }
 
     @Override
     public int getIntValue() throws JacksonException {
+        _verifyNumberToken();
         return _reader.getIntValue();
     }
 
     @Override
     public long getLongValue() throws JacksonException {
+        _verifyNumberToken();
         return _reader.getLongValue();
     }
 
     @Override
     public BigInteger getBigIntegerValue() throws JacksonException {
+        _verifyNumberToken();
         return _reader.getBigIntegerValue();
     }
 
     @Override
     public float getFloatValue() throws JacksonException {
+        _verifyNumberToken();
         return _reader.getFloatValue();
     }
 
     @Override
     public double getDoubleValue() throws JacksonException {
+        _verifyNumberToken();
         return _reader.getDoubleValue();
     }
 
     @Override
     public BigDecimal getDecimalValue() throws JacksonException {
+        _verifyNumberToken();
         return _reader.getDecimalValue();
     }
 
@@ -1157,6 +1169,18 @@ public class CsvParser
     @Override // just to make visible to decoder
     public JacksonException _wrapIOFailure(IOException e)  {
         return super._wrapIOFailure(e);
+    }
+
+    protected void _verifyNumberToken() throws JacksonException {
+        if (_currToken != JsonToken.VALUE_NUMBER_INT) {
+            _reportNotNumericError();
+        }
+    }
+
+    protected <T> T _reportNotNumericError() throws JacksonException {
+        _reportError("Current token (%s) not numeric, cannot use numeric value accessors",
+                _currToken);
+        return null;
     }
 
     /*
