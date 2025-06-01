@@ -188,7 +188,6 @@ public class JavaPropsParser extends ParserMinimalBase
             if (_closed) {
                 return null;
             }
-            _closed = true;
             JPropNode root = JPropNodeBuilder.build(_sourceContent, _schema);
             _streamReadContext = JPropReadContext.create(root);
 
@@ -266,7 +265,7 @@ System.err.println("\n>>");
     {
         if (_binaryValue == null) {
             if (_currToken != JsonToken.VALUE_STRING) {
-                _reportError("Current token ("+_currToken+") not VALUE_STRING, can not access as binary");
+                _reportError("Current token ("+_currToken+") not VALUE_STRING, cannot access as binary");
             }
             ByteArrayBuilder builder = _getByteArrayBuilder();
             _decodeBase64(getString(), builder, variant);
@@ -319,7 +318,9 @@ System.err.println("\n>>");
     
     @Override
     public NumberType getNumberType() throws JacksonException {
-        return _noNumbers();
+        // 01-Jun-2025, tatu: As per [core#1434] 3.x should just return null
+        //   for non-number tokens
+        return null;
     }
 
     @Override
@@ -364,7 +365,7 @@ System.err.println("\n>>");
      */
 
     protected <T> T _noNumbers() throws StreamReadException {
-        _reportError("Current token ("+_currToken+") not numeric, can not use numeric value accessors");
+        _reportError("Current token ("+_currToken+") not numeric, cannot use numeric value accessors");
         return null;
     }
 

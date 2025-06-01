@@ -27,10 +27,12 @@ public class SimpleStreamingTest extends ModuleTestBase
         JsonParser p = MAPPER.createParser("foo = bar");
         Object src = p.streamReadInputSource();
         assertTrue(src instanceof Reader);
+        _verifyGetNumberTypeFail(p, "null");
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertNull(p.getEmbeddedObject());
         assertNotNull(p.currentLocation()); // N/A
         assertNotNull(p.currentTokenLocation()); // N/A
+        _verifyGetNumberTypeFail(p, "START_OBJECT");
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("foo", p.currentName());
         assertEquals("foo", p.getString());
@@ -40,8 +42,17 @@ public class SimpleStreamingTest extends ModuleTestBase
         StringWriter sw = new StringWriter();
         assertEquals(3, p.getString(sw));
         assertEquals("bar", sw.toString());
+        try {
+            // try just one arbitrary one; all should fail similarly
+            p.getLongValue();
+            fail("Should not pass");
+        } catch (StreamReadException e) {
+            _verifyNonNumberTypeException(e, "VALUE_STRING");
+        }
+
         p.close();
         assertTrue(p.isClosed());
+        _verifyGetNumberTypeFail(p, "null");
 
         // and then some other accessors
         p = MAPPER.createParser("foo = bar");
@@ -59,14 +70,18 @@ public class SimpleStreamingTest extends ModuleTestBase
             p.getBinaryValue();
             fail("Should not pass");
         } catch (StreamReadException e) {
-            verifyException(e, "can not access as binary");
+            verifyException(e, "cannot access as binary");
         }
         try {
             p.getDoubleValue();
             fail("Should not pass");
         } catch (StreamReadException e) {
-            verifyException(e, "can not use numeric");
+            _verifyNonNumberTypeException(e, "PROPERTY_NAME");
         }
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        assertToken(JsonToken.END_OBJECT, p.nextToken());
+        assertFalse(p.isClosed());
+        assertNull(p.nextToken());
         p.close();
     }
 
@@ -162,5 +177,17 @@ public class SimpleStreamingTest extends ModuleTestBase
         gen.close();
 
         assertEquals(sb.toString(), strw.toString());
-    }        
+    }
+
+    // In Jackson 3.x, non-Number token should return null for parser.getNumberType()
+    // (no exception)
+    private void _verifyGetNumberTypeFail(JsonParser p, String token) throws Exception
+    {
+        assertNull(p.getNumberType());
+    }
+
+    private void _verifyNonNumberTypeException(Exception e, String token) throws Exception
+    {
+        verifyException(e, "Current token ("+token+") not numeric, cannot use numeric");
+    }
 }
