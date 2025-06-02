@@ -93,6 +93,7 @@ public abstract class JavaPropsGenerator extends GeneratorBase
         return _jpropContext.getCurrentValue();
     }
 
+    @Deprecated
     @Override
     public Object getCurrentValue() {
         return _jpropContext.getCurrentValue();
@@ -103,6 +104,7 @@ public abstract class JavaPropsGenerator extends GeneratorBase
         _jpropContext.setCurrentValue(v);
     }
 
+    @Deprecated
     @Override
     public void setCurrentValue(Object v) {
         _jpropContext.setCurrentValue(v);
