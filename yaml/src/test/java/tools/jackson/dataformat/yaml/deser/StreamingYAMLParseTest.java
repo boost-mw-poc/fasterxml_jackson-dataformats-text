@@ -39,7 +39,9 @@ public class StreamingYAMLParseTest extends ModuleTestBase
 +"d: 1.25\n"
 ;
         JsonParser p = MAPPER.createParser(YAML);
+        _verifyGetNumberTypeFail(p, "null");
         assertToken(JsonToken.START_OBJECT, p.nextToken());
+        _verifyGetNumberTypeFail(p, "START_OBJECT");
 
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("string", p.currentName());
@@ -75,6 +77,8 @@ public class StreamingYAMLParseTest extends ModuleTestBase
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals("123", p.getString());
         assertEquals(123, p.getIntValue());
+        assertEquals(JsonParser.NumberType.INT, p.getNumberType());
+
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         assertEquals("1.25", p.getString());
@@ -85,6 +89,8 @@ public class StreamingYAMLParseTest extends ModuleTestBase
         assertNull(p.nextToken());
         assertNull(p.nextToken());
         assertNull(p.nextToken());
+        _verifyGetNumberTypeFail(p, "null");
+
         p.close();
     }
 
@@ -105,7 +111,12 @@ public class StreamingYAMLParseTest extends ModuleTestBase
         assertEquals(Integer.MAX_VALUE, p.getIntValue());
         assertEquals(JsonParser.NumberType.INT, p.getNumberType());
         assertEquals("2147483647", p.getString());
+        assertToken(JsonToken.END_OBJECT, p.nextToken());
         p.close();
+
+        // 02-Jun-2025, tatu: [core#1438] Close should clear token
+        assertNull(p.currentToken());
+        _verifyGetNumberTypeFail(p, "null");
 
         // Test negative max-int
         YAML = "num: -2147483648";
@@ -659,5 +670,12 @@ public class StreamingYAMLParseTest extends ModuleTestBase
         } catch (JacksonYAMLParseException e) {
             assertTrue(e.getMessage().startsWith("The incoming YAML document exceeds the limit: 5 code points."));
         }
+    }
+
+    // In Jackson 3.x, non-Number token should NOT throw exception for parser.getNumberType()
+    // (like in 2.x) but just return `null`
+    private void _verifyGetNumberTypeFail(JsonParser p, String token) throws Exception
+    {
+        assertNull(p.getNumberType());
     }
 }
