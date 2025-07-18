@@ -18,6 +18,7 @@ Active Maintainers:
 
 -
 
+2.19.2 (18-Jul-2025)
 2.19.1 (13-Jun-2025)
 
 No changes since 2.19.0
