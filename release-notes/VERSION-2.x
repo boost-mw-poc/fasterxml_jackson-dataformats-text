@@ -14,7 +14,7 @@ Active Maintainers:
 === Releases ===
 ------------------------------------------------------------------------
 
-2.20.0 (not yet released)
+2.20.0-rc1 (04-Aug-2025)
 
 #564: (csv) `CsvParser.getNumberValue()`, related, do not throw exception
  for non-numeric tokens
