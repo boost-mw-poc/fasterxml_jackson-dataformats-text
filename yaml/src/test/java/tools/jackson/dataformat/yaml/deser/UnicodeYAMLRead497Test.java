@@ -1,4 +1,4 @@
-package tools.jackson.dataformat.yaml.tofix;
+package tools.jackson.dataformat.yaml.deser;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
@@ -10,7 +10,6 @@ import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 
 import tools.jackson.dataformat.yaml.*;
-import tools.jackson.dataformat.yaml.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -21,24 +20,29 @@ public class UnicodeYAMLRead497Test extends ModuleTestBase
     private final YAMLMapper MAPPER = newObjectMapper();
 
     // [dataformats-text#497]
-    @JacksonTestFailureExpected
     @Test
     public void testUnicodeAtEnd() throws Exception
     {
         // Had to find edge condition, these would do:
+        // (but there seems to be some fluctuation wrt exact boundary condition)
         // (NOTE: off-by-one-per-1k compared to Jackson 2.x)
         _testUnicodeAtEnd(1023);
         _testUnicodeAtEnd(1024);
         _testUnicodeAtEnd(1025);
         _testUnicodeAtEnd(1026);
 
+        _testUnicodeAtEnd(2046);
         _testUnicodeAtEnd(2047);
         _testUnicodeAtEnd(2048);
         _testUnicodeAtEnd(2049);
         _testUnicodeAtEnd(2050);
         _testUnicodeAtEnd(2051);
 
-        _testUnicodeAtEnd(3075);
+        _testUnicodeAtEnd(3069);
+        _testUnicodeAtEnd(3070);
+        _testUnicodeAtEnd(3071);
+        _testUnicodeAtEnd(3072);
+        _testUnicodeAtEnd(3073);
 
         _testUnicodeAtEnd(4100);
     }

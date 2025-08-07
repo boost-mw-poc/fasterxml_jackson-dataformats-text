@@ -12,6 +12,7 @@ import tools.jackson.dataformat.csv.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 // [dataformats-text#497]: 3-byte UTF-8 character at end of content
+// (fixed for YAML in 2.20)
 public class UnicodeCSVRead497Test extends ModuleTestBase
 {
     private final CsvMapper MAPPER = mapperForCsv();
