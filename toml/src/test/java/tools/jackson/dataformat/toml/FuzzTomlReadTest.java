@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.StreamReadConstraints;
 import tools.jackson.core.StreamWriteConstraints;
+import tools.jackson.core.exc.JacksonIOException;
 import tools.jackson.core.exc.StreamConstraintsException;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.databind.JsonNode;
@@ -47,9 +48,9 @@ public class FuzzTomlReadTest extends TomlMapperTestBase
         try {
             TOML_MAPPER.readTree(INPUT);
             fail("Should not pass");
-        } catch (JacksonException e) {
-            verifyException(e, "End-of-input after first 1 byte");
-            verifyException(e, "of a UTF-8 character");
+        } catch (JacksonIOException e) {
+            verifyException(e, "Unexpected EOF in the middle of a multi-byte");
+            verifyException(e, "got 1, needed 2");
         }
     }
 
@@ -141,5 +142,4 @@ public class FuzzTomlReadTest extends TomlMapperTestBase
         }
         fail("Expected an exception with one of substrings ("+Arrays.asList(matches)+"): got one with message \""+msg+"\"");
     }
-
 }
