@@ -25,13 +25,23 @@ public class UnicodeYAMLRead497Test extends ModuleTestBase
     {
         // Had to find edge condition, these would do:
         // (NOTE: off-by-one-per-1k compared to Jackson 2.x)
+        _testUnicodeAtEnd(1023);
+        _testUnicodeAtEnd(1024);
         _testUnicodeAtEnd(1025);
+        _testUnicodeAtEnd(1026);
+
+        _testUnicodeAtEnd(2047);
+        _testUnicodeAtEnd(2048);
+        _testUnicodeAtEnd(2049);
         _testUnicodeAtEnd(2050);
+        _testUnicodeAtEnd(2051);
+
         _testUnicodeAtEnd(3075);
+
         _testUnicodeAtEnd(4100);
     }
 
-    void _testUnicodeAtEnd(int LEN) throws Exception
+    private void _testUnicodeAtEnd(int LEN) throws Exception
     {
         StringBuilder sb = new StringBuilder(LEN + 2);
         sb.append("key: ");
@@ -56,8 +66,7 @@ public class UnicodeYAMLRead497Test extends ModuleTestBase
             assertToken(JsonToken.START_OBJECT, p.nextToken());
             assertEquals("key", p.nextName());
             assertToken(JsonToken.VALUE_STRING, p.nextToken());
-            assertEquals(valueBuffer.toString(), p.getText());
+            assertEquals(valueBuffer.toString(), p.getString());
         }
     }
-
 }
