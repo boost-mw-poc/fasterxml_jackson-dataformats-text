@@ -284,25 +284,26 @@ public class CsvFactory extends JsonFactory
 
     @Override
     public CsvParser createParser(File f) throws IOException {
-        IOContext ctxt =  _createContext(_createContentReference(f), true);
+        IOContext ctxt = _createContext(_createContentReference(f), true);
         return _createParser(_decorate(new FileInputStream(f), ctxt), ctxt);
     }
 
+    @Deprecated // since 2.20
     @Override
     public CsvParser createParser(URL url) throws IOException {
-        IOContext ctxt =  _createContext(_createContentReference(url), true);
+        IOContext ctxt = _createContext(_createContentReference(url), true);
         return _createParser(_decorate(_optimizedStreamFromURL(url), ctxt), ctxt);
     }
 
     @Override
     public CsvParser createParser(InputStream in) throws IOException {
-        IOContext ctxt =  _createContext(_createContentReference(in), false);
+        IOContext ctxt = _createContext(_createContentReference(in), false);
         return _createParser(_decorate(in, ctxt), ctxt);
     }
 
     @Override
     public CsvParser createParser(Reader r) throws IOException {
-        IOContext ctxt =  _createContext(_createContentReference(r), false);
+        IOContext ctxt = _createContext(_createContentReference(r), false);
         return _createParser(_decorate(r, ctxt), ctxt);
     }
 
