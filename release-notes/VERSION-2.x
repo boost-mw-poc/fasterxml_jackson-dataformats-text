@@ -14,15 +14,12 @@ Active Maintainers:
 === Releases ===
 ------------------------------------------------------------------------
 
-(not yet released)
+2.20.0 (28-Aug-2025)
 
 #497: (csv, toml, yaml): `UTF8Reader` throws "Need to move partially decoded character;
   buffer not modifiable" when read only one chinese char
  NOTE: csv part fixed in 2.19.0, toml and yaml in 2.20.0
  (reported by @mrtaolili)
-
-2.20.0-rc1 (04-Aug-2025)
-
 #564: (csv) `CsvParser.getNumberValue()`, related, do not throw exception
  for non-numeric tokens
 - Generate SBOMs [JSTEP-14]
