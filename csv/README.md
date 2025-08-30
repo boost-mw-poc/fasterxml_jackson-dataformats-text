@@ -20,7 +20,7 @@ To use this extension on Maven-based projects, use following dependency:
 <dependency>
     <groupId>com.fasterxml.jackson.dataformat</groupId>
     <artifactId>jackson-dataformat-csv</artifactId>
-    <version>2.13.0</version>
+    <version>2.20.0</version>
 </dependency>
 ```
 
