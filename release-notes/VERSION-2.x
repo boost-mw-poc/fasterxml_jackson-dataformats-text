@@ -14,6 +14,10 @@ Active Maintainers:
 === Releases ===
 ------------------------------------------------------------------------
 
+2.21.0 (not yet released)
+
+No changes since 2.20
+
 2.20.0 (28-Aug-2025)
 
 #497: (csv, toml, yaml): `UTF8Reader` throws "Need to move partially decoded character;
