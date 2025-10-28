@@ -37,6 +37,7 @@ No changes since 2.19.0
 #554: (csv) Enforce, document thread-safety of `CsvSchema`
  (requested by Gili T)
 
+2.18.5 (27-Oct-2025)
 2.18.4 (06-May-2025)
 2.18.3 (28-Feb-2025)
 2.18.2 (27-Nov-2024)
