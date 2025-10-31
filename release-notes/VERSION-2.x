@@ -67,7 +67,9 @@ No changes since 2.15.1
   to allow parsing "boolean" words as strings instead of booleans
  (contributed by Axel N)
 #390: (yaml) Upgrade to Snakeyaml 2.0 (resolves CVE-2022-1471)
- (contributed by @pjfannin
+ (contributed by @pjfanning)
+#398 (tom) TOML: check nesting depth (CVE-2023-3894)
+ (contributed by @pjfanning)
 #411: (toml) Fuzzer-found issue #57237 (buffer boundary condition)
  (contributed by @yawkat)
 #415: (yaml) Use `LoaderOptions.allowDuplicateKeys` to enforce duplicate key detection
