@@ -27,6 +27,9 @@ No changes since 3.0.0
 
 #106: (yaml) Upgrade to `snakeyaml-engine` (from classic `snakeyaml`)
  (contributed by Andrey S)
+#215: (yaml) .without(YAMLGenerator.Feature.WRITE_DOC_START_MARKER)
+  seems to be ignored
+ (reported by @jdimeo)
 #320: Rename "com.fasterxml.jackson" -> "tools.jackson"
 #374: (csv) Should verify that escape character set if enabling
   `CsvGenerator.Feature.ESCAPE_QUOTE_CHAR_WITH_ESCAPE_CHAR`
