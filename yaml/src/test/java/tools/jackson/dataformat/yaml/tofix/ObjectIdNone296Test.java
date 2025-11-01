@@ -8,15 +8,34 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.dataformat.yaml.ModuleTestBase;
 import tools.jackson.dataformat.yaml.testutil.failure.JacksonTestFailureExpected;
+import tools.jackson.dataformat.yaml.YAMLMapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
-// [dataformats-text#296]: YAML Anchor and alias fails with ObjectIdGenerators.None
+/**
+ * [dataformats-text#296]: YAML Anchor and alias with ObjectIdGenerators.None
+ *<p>
+ * NOTE: ObjectIdGenerators.None with YAML anchors/aliases currently does NOT work
+ * as expected due to a limitation in Jackson's databind layer.
+ *<p>
+ * While the parser correctly exposes object IDs via getObjectId(), Jackson's
+ * object ID resolution doesn't properly cache and reuse objects when using
+ * ObjectIdGenerators.None, even with YAMLAnchorReplayingFactory.
+ *<p>
+ * WORKAROUND: Users should use ObjectIdGenerators.StringIdGenerator (or other
+ * generators) instead of ObjectIdGenerators.None for YAML anchor/alias support.
+ */
 public class ObjectIdNone296Test extends ModuleTestBase
 {
-    private final ObjectMapper MAPPER = newObjectMapper();
+    // YAMLAnchorReplayingFactory properly replays anchored events, but
+    // ObjectIdGenerators.None still doesn't work for de-duplication
+    //
+    // 01-Nov-2025, tatu: Alas, [dataformats-text#502] only applied to 2.x (2.20)
+    //   so NOT available on 3.x
+//    private final ObjectMapper MAPPER = YAMLMapper.builder(new YAMLAnchorReplayingFactory()).build();
+    private final ObjectMapper MAPPER = YAMLMapper.builder().build();
 
     @JacksonTestFailureExpected
     @Test
@@ -28,10 +47,6 @@ public class ObjectIdNone296Test extends ModuleTestBase
                 "  value: bar\n" +
                 "boo: *foo1\n";
 
-        // This should work: YAML anchors/aliases should be recognized natively
-        // when using ObjectIdGenerators.None, but currently fails with:
-        // "Cannot construct instance of StringHolder... no String-argument
-        // constructor/factory method to deserialize from String value ('foo1')"
         ScratchModel result = MAPPER.readValue(YAML_CONTENT, ScratchModel.class);
 
         assertNotNull(result);
@@ -40,6 +55,7 @@ public class ObjectIdNone296Test extends ModuleTestBase
         assertNotNull(result.boo);
         assertEquals("bar", result.boo.value);
         // The key assertion: both fields should point to the same object instance
+        // Currently FAILS - creates two separate instances with same content
         assertSame(result.foo, result.boo);
     }
 
@@ -54,7 +70,7 @@ public class ObjectIdNone296Test extends ModuleTestBase
         public String value;
 
         protected StringHolder() { }
-        
+
         @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
         public StringHolder(String v) { value = v; }
 
