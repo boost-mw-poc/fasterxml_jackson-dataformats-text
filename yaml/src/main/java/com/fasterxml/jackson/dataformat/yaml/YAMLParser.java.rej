@@ -1,9 +1,0 @@
-@@ -619,7 +619,7 @@
-             if (evt.is(Event.ID.StreamEnd)) { // end-of-input; force closure
-                 // [dataformats-text#154]: If we have no content and feature is enabled,
-                 // emit a synthetic empty object instead of null
--                if (!_hasContent && (_formatFeatures & Feature.EMPTY_DOCUMENT_AS_EMPTY_OBJECT.getMask()) != 0) {
-+                if (!_hasContent && Feature.EMPTY_DOCUMENT_AS_EMPTY_OBJECT.enabledIn(_formatFeatures)) {
-                     _emittingSyntheticEmptyObject = true;
-                     // Don't close yet - we need to emit END_OBJECT first
-                     createChildObjectContext(0, 0);
