@@ -18,6 +18,8 @@ implementations)
 
 #581: (csv, toml, yaml) Add `isEnabled()` methods for format-specific
   features to mappers 
+#590: (yaml) Upgrade to the latest version of SnakeYAML Engine (3.0.1)
+ (contributed by Andrey S)
 
 3.0.2 (07-Nov-2025)
 3.0.1 (21-Oct-2025)
