@@ -1,4 +1,4 @@
-package tools.jackson.dataformat.yaml.tofix;
+package tools.jackson.dataformat.yaml.ser;
 
 import java.io.StringWriter;
 
@@ -10,7 +10,6 @@ import tools.jackson.dataformat.yaml.ModuleTestBase;
 import tools.jackson.dataformat.yaml.YAMLFactory;
 import tools.jackson.dataformat.yaml.YAMLMapper;
 import tools.jackson.dataformat.yaml.YAMLWriteFeature;
-import tools.jackson.dataformat.yaml.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -21,7 +20,6 @@ public class GeneratorWithMinimize568Test extends ModuleTestBase
                 .build());
 
     // [dataformats-text#568]: snakeyaml-engine bug fixed in 3.x
-    @JacksonTestFailureExpected
     @Test
     void testLinefeedAsDoc() {
         StringWriter writer = new StringWriter();
