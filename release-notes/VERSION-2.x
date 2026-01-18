@@ -14,7 +14,7 @@ Active Maintainers:
 === Releases ===
 ------------------------------------------------------------------------
 
-2.21.0 (not yet released)
+2.21.0 (18-Jan-2026)
 
 #10: (csv) Missing `null` writes when writing `Object[]` values
  (reported by @georgewfraser)
