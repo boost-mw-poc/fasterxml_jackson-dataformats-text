@@ -330,6 +330,7 @@ public class CsvParser
         _formatFeatures |= f.getMask();
         _cfgEmptyStringAsNull = CsvReadFeature.EMPTY_STRING_AS_NULL.enabledIn(_formatFeatures);
         _cfgEmptyUnquotedStringAsNull = CsvReadFeature.EMPTY_UNQUOTED_STRING_AS_NULL.enabledIn(_formatFeatures);
+        _cfgOnlyUnquotedNullValuesAsNull = CsvReadFeature.ONLY_UNQUOTED_NULL_VALUES_AS_NULL.enabledIn(csvFeatures);
         return this;
     }
 
@@ -342,6 +343,7 @@ public class CsvParser
         _formatFeatures &= ~f.getMask();
         _cfgEmptyStringAsNull = CsvReadFeature.EMPTY_STRING_AS_NULL.enabledIn(_formatFeatures);
         _cfgEmptyUnquotedStringAsNull = CsvReadFeature.EMPTY_UNQUOTED_STRING_AS_NULL.enabledIn(_formatFeatures);
+        _cfgOnlyUnquotedNullValuesAsNull = CsvReadFeature.ONLY_UNQUOTED_NULL_VALUES_AS_NULL.enabledIn(csvFeatures);
         return this;
     }
 
