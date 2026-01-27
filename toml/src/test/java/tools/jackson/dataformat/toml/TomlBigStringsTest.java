@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class TomlBigStringsTest extends TomlMapperTestBase
 {
-    private final static int TOO_LONG_STRING_VALUE_LEN = 20_000_100;
+    private final static int TOO_LONG_STRING_VALUE_LEN = StreamReadConstraints.DEFAULT_MAX_STRING_LEN + 100;
 
     final static class StringWrapper
     {

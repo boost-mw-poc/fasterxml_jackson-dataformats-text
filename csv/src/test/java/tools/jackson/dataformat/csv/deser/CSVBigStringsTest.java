@@ -21,7 +21,7 @@ public class CSVBigStringsTest extends ModuleTestBase
 
     private final CsvMapper MAPPER = mapperForCsv();
 
-    private final static int TOO_LONG_STRING_VALUE_LEN = 20_000_100;
+    private final static int TOO_LONG_STRING_VALUE_LEN = StreamReadConstraints.DEFAULT_MAX_STRING_LEN + 100;
     
     private CsvMapper newCsvMapperWithUnlimitedStringSizeSupport() {
         CsvFactory csvFactory = CsvFactory.builder()
