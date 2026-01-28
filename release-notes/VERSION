@@ -14,7 +14,7 @@ implementations)
 === Releases ===
 ------------------------------------------------------------------------
 
-3.1.0 (not yet released)
+3.1.0-rc1 (27-Jan-2026)
 
 #479: (csv) `STRICT_CHECK_FOR_QUOTING` does not quote value that contains newline character
  (reported by @zhuhw)
