@@ -1,10 +1,11 @@
-package com.fasterxml.jackson.dataformat.csv.deser;
+package com.fasterxml.jackson.dataformat.csv.fuzz;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.ModuleTestBase;
 
@@ -44,6 +45,19 @@ public class FuzzCSVReadTest extends ModuleTestBase
             verifyException(e, "Unexpected EOF in the middle of a multi-byte UTF-8 character");
             // check input was not modified
             assertArrayEquals(CLONED, INPUT);
+        }
+    }
+
+    // https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=50402
+    @Test
+    public void testReadBoundary50402() throws Exception
+    {
+        byte[] input = readResource("/data/fuzz-50402.csv");
+        try {
+            CSV_MAPPER.readTree(input);
+            // Ok; don't care about content, just buffer reads
+        } catch (JacksonException e) {
+            verifyException(e, "foo");
         }
     }
 }
