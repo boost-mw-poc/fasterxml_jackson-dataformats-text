@@ -73,6 +73,11 @@ No changes since 2.19.0
 #554: (csv) Enforce, document thread-safety of `CsvSchema`
  (requested by Gili T)
 
+2.18.6 (not yet released)
+
+#613: (csv) Support `StreamReadConstraints.maxDocumentLength()` validation
+  for CSV module
+
 2.18.5 (27-Oct-2025)
 2.18.4 (06-May-2025)
 2.18.3 (28-Feb-2025)
