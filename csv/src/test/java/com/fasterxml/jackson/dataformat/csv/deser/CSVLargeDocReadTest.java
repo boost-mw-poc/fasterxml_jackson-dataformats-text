@@ -1,11 +1,15 @@
 package com.fasterxml.jackson.dataformat.csv.deser;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 
 import com.fasterxml.jackson.dataformat.csv.CsvFactory;
 import com.fasterxml.jackson.dataformat.csv.ModuleTestBase;
+
+import static org.junit.jupiter.api.Assertions.fail;
 
 // Tests for StreamReadConstraints.maxDocumentLength() enforcement in CSV parser
 public class CSVLargeDocReadTest extends ModuleTestBase
@@ -20,6 +24,7 @@ public class CSVLargeDocReadTest extends ModuleTestBase
                 .build();
     }
 
+    @Test
     public void testDocumentExceedingLimitFails() throws Exception
     {
         final String doc = generateCsv(DOC_LEN_LIMIT + 5_000);
@@ -28,12 +33,12 @@ public class CSVLargeDocReadTest extends ModuleTestBase
             while (p.nextToken() != null) { }
             fail("expected StreamConstraintsException");
         } catch (StreamConstraintsException e) {
-            final String msg = e.getMessage();
-            assertTrue("unexpected message: " + msg, msg.contains("Document length"));
-            assertTrue("unexpected message: " + msg, msg.contains("exceeds the maximum allowed ("));
+            verifyException(e, "Document length");
+            verifyException(e, "exceeds the maximum allowed (");
         }
     }
 
+    @Test
     public void testDocumentWithinLimitSucceeds() throws Exception
     {
         final String doc = generateCsv(1_000);
