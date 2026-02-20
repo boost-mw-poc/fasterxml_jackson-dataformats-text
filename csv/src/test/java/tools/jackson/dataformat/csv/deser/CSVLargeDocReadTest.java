@@ -25,6 +25,7 @@ public class CSVLargeDocReadTest extends ModuleTestBase
                 .build();
     }
 
+    @Test
     public void testDocumentExceedingLimitFails() throws Exception
     {
         final String doc = generateCsv(DOC_LEN_LIMIT + 5_000);
@@ -48,7 +49,6 @@ public class CSVLargeDocReadTest extends ModuleTestBase
         }
     }
 
-    @Test
     private String generateCsv(int targetLen) {
         // "value1,value2,value3\n" = 22 chars per row
         final String row = "value1,value2,value3\n";
