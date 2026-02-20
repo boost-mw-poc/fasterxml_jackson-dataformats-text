@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.dataformat.csv.deser;
+package com.fasterxml.jackson.dataformat.csv.limits;
 
 import org.junit.jupiter.api.Test;
 
@@ -12,7 +12,7 @@ import com.fasterxml.jackson.dataformat.csv.ModuleTestBase;
 import static org.junit.jupiter.api.Assertions.fail;
 
 // Tests for StreamReadConstraints.maxDocumentLength() enforcement in CSV parser
-public class CSVLargeDocReadTest extends ModuleTestBase
+public class CSVLargeDocReadLimitTest extends ModuleTestBase
 {
     private static final int DOC_LEN_LIMIT = 10_000;
 
