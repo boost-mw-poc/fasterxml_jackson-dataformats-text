@@ -459,6 +459,9 @@ public class CsvDecoder
         _currInputProcessed += _inputEnd;
         _currInputRowStart -= _inputEnd;
 
+        // [dataformats-text#613]: enforce max document length
+        _ioContext.streamReadConstraints().validateDocumentLength(_currInputProcessed);
+
         try {
             if (_inputReader != null) {
                 int count = _inputReader.read(_inputBuffer, 0, _inputBuffer.length);

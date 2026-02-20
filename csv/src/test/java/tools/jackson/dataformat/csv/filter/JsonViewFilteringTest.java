@@ -63,7 +63,7 @@ public class JsonViewFilteringTest extends ModuleTestBase
      */
 
     private final CsvMapper MAPPER = mapperForCsv();
-    
+
     @Test
     public void testWithJsonView() throws Exception
     {
