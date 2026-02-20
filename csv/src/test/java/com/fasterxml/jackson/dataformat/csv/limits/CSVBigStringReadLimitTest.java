@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.dataformat.csv.deser;
+package com.fasterxml.jackson.dataformat.csv.limits;
 
 import java.util.List;
 
@@ -11,7 +11,7 @@ import com.fasterxml.jackson.dataformat.csv.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class CSVBigStringsTest extends ModuleTestBase
+public class CSVBigStringReadLimitTest extends ModuleTestBase
 {
     private final CsvMapper MAPPER = mapperForCsv();
 
