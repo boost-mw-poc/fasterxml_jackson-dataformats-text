@@ -38,6 +38,8 @@ implementations)
  (fixed by @pjfanning)
 #609: (yaml) Catch and rethrow yaml engine internal exception on generation
  (fixed by @pjfanning)
+#613: (csv) Support `StreamReadConstraints.maxDocumentLength()` validation
+  for CSV module
 
 3.0.3 (28-Nov-2025)
 3.0.2 (07-Nov-2025)
