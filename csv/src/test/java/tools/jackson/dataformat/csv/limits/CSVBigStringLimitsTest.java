@@ -1,4 +1,4 @@
-package tools.jackson.dataformat.csv.deser;
+package tools.jackson.dataformat.csv.limits;
 
 import java.util.List;
 
@@ -16,7 +16,7 @@ import tools.jackson.dataformat.csv.ModuleTestBase;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class CSVBigStringsTest extends ModuleTestBase
+public class CSVBigStringLimitsTest extends ModuleTestBase
 {
 
     private final CsvMapper MAPPER = mapperForCsv();

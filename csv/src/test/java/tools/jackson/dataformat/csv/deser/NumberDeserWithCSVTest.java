@@ -7,9 +7,6 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
-import tools.jackson.core.StreamReadConstraints;
-import tools.jackson.core.exc.StreamConstraintsException;
-
 import tools.jackson.dataformat.csv.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -82,52 +79,6 @@ public class NumberDeserWithCSVTest extends ModuleTestBase
                 .with(schema)
                 .readValue(DOC);
         assertEquals(new BigDecimal("5.123"), result.holder.value);
-    }
-
-    @Test
-    public void testVeryBigDecimalUnwrapped() throws Exception
-    {
-        final int len = 1200;
-        final StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < len; i++) {
-            sb.append(1);
-        }
-        final String value = sb.toString();
-        CsvSchema schema = MAPPER.schemaFor(NestedBigDecimalHolder2784.class).withHeader()
-                .withStrictHeaders(true);
-        final String DOC = "value\n" + value + "\n";
-        try {
-            MAPPER.readerFor(NestedBigDecimalHolder2784.class)
-                    .with(schema)
-                    .readValue(DOC);
-            fail("expected StreamConstraintsException");
-        } catch (StreamConstraintsException jme) {
-            assertTrue(
-                    jme.getMessage().startsWith("Number value length (1200) exceeds the maximum allowed"),
-                    "unexpected message: " + jme.getMessage());
-        }
-    }
-
-    @Test
-    public void testVeryBigDecimalUnwrappedWithNumLenUnlimited() throws Exception
-    {
-        final int len = 1200;
-        final StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < len; i++) {
-            sb.append(1);
-        }
-        final String value = sb.toString();
-        CsvFactory factory = CsvFactory.builder()
-                .streamReadConstraints(StreamReadConstraints.builder().maxNumberLength(Integer.MAX_VALUE).build())
-                .build();
-        CsvMapper mapper = CsvMapper.builder(factory).build();
-        CsvSchema schema = mapper.schemaFor(NestedBigDecimalHolder2784.class).withHeader()
-                .withStrictHeaders(true);
-        final String DOC = "value\n" + value + "\n";
-        NestedBigDecimalHolder2784 result = mapper.readerFor(NestedBigDecimalHolder2784.class)
-                .with(schema)
-                .readValue(DOC);
-        assertEquals(new BigDecimal(value), result.holder.value);
     }
 
     @Test

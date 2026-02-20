@@ -17,6 +17,7 @@ module tools.jackson.dataformat.csv
     opens tools.jackson.dataformat.csv.deser;
     opens tools.jackson.dataformat.csv.filter;
     opens tools.jackson.dataformat.csv.fuzz;
+    opens tools.jackson.dataformat.csv.limits;
     opens tools.jackson.dataformat.csv.schema;
     opens tools.jackson.dataformat.csv.ser;
     opens tools.jackson.dataformat.csv.ser.dos;
