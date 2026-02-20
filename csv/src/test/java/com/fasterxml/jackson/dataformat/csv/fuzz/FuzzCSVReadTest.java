@@ -1,8 +1,11 @@
-package com.fasterxml.jackson.dataformat.csv.deser;
+package com.fasterxml.jackson.dataformat.csv.fuzz;
 
 import java.io.IOException;
 
+import com.fasterxml.jackson.core.JacksonException;
+
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.deser.StreamingCSVReadTest;
 
 /**
  * Collection of OSS-Fuzz found issues for CSV format module.
@@ -10,7 +13,7 @@ import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 public class FuzzCSVReadTest extends StreamingCSVReadTest
 {
     private final CsvMapper CSV_MAPPER = mapperForCsv();
-
+    
     // https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=50036
     public void testUTF8Decoding50036() throws Exception
     {
@@ -21,6 +24,18 @@ public class FuzzCSVReadTest extends StreamingCSVReadTest
         } catch (IOException e) {
             verifyException(e, "End-of-input after first 1 byte");
             verifyException(e, "of a UTF-8 character");
+        }
+    }
+
+    // https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=50402
+    public void testReadBoundary50402() throws Exception
+    {
+        byte[] input = readResource("/data/fuzz-50402.csv");
+        try {
+            CSV_MAPPER.readTree(input);
+            // Ok; don't care about content, just buffer reads
+        } catch (JacksonException e) {
+            verifyException(e, "foo");
         }
     }
 }

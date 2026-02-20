@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.dataformat.csv.deser;
+package com.fasterxml.jackson.dataformat.csv.limits;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.StreamReadConstraints;
@@ -8,7 +8,7 @@ import com.fasterxml.jackson.dataformat.csv.CsvFactory;
 import com.fasterxml.jackson.dataformat.csv.ModuleTestBase;
 
 // Tests for StreamReadConstraints.maxDocumentLength() enforcement in CSV parser
-public class CSVLargeDocReadTest extends ModuleTestBase
+public class CSVLargeDocReadLimitTest extends ModuleTestBase
 {
     private static final int DOC_LEN_LIMIT = 10_000;
 

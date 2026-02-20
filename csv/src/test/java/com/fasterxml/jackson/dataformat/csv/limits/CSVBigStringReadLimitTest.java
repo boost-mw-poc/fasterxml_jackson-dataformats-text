@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.dataformat.csv.deser;
+package com.fasterxml.jackson.dataformat.csv.limits;
 
 import java.util.List;
 
@@ -12,7 +12,7 @@ import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvParser;
 import com.fasterxml.jackson.dataformat.csv.ModuleTestBase;
 
-public class CSVBigStringsTest extends ModuleTestBase
+public class CSVBigStringReadLimitTest extends ModuleTestBase
 {
     private final CsvMapper MAPPER = mapperForCsv();
 
