@@ -285,6 +285,12 @@ Burdyug Pavel (@Pavel38l)
 * Reported #485: (csv) CSVDecoder: No Long and Int out of range exceptions
  (2.18.0)
 
+Henning Langhorst (@HenningLanghorst)
+
+* Reported #615 (csv): Feature `CsvReadFeature.EMPTY_UNQUOTED_STRING_AS_NULL` ignored
+  when preceding column is quoted
+ (2.18.7)
+
 Robert DiFalco (@rdifalco)
 
 * Reported #31: Header names seem to be trimmed
@@ -294,4 +300,3 @@ Gili Tzabari (@cowwoc)
 
 * Requested #554: (csv) Enforce, document thread-safety of `CsvSchema`
  (2.19.0)
-
