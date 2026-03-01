@@ -20,6 +20,12 @@ Active Maintainers:
   value `"nullValue"`
  (requested by Dmitry B)
 
+2.21.1 (not yet released)
+
+#615: (csv) Feature `CsvReadFeature.EMPTY_UNQUOTED_STRING_AS_NULL` ignored
+  when preceding column is quoted
+ (reported by Henning L)
+
 2.21.1 (22-Feb-2026)
 
 #610: (yaml) Snakeyaml 2.5 (from 2.4)
@@ -72,6 +78,12 @@ No changes since 2.19.0
  (contributed by @pjfanning)
 #554: (csv) Enforce, document thread-safety of `CsvSchema`
  (requested by Gili T)
+
+2.18.7 (not yet released)
+
+#615: (csv) Feature `CsvReadFeature.EMPTY_UNQUOTED_STRING_AS_NULL` ignored
+  when preceding column is quoted
+ (reported by Henning L)
 
 2.18.6 (22-Feb-2026)
 
