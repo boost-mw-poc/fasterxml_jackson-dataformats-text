@@ -18,6 +18,11 @@ Active Maintainers:
 
 -
 
+2.19.5 (not yet released)
+
+#613: (csv) Support `StreamReadConstraints.maxDocumentLength()` validation
+  for CSV module
+
 2.19.4 (29-Oct-2025)
 2.19.3 (29-Oct-2025)
 2.19.2 (18-Jul-2025)
