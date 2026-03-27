@@ -20,9 +20,10 @@ import tools.jackson.core.util.BufferRecycler;
  * Note: this overwrites the nextEvent() since the base {@code super.nextToken()}
  * manages too much state, and it seems to be much simpler to re-emit the events.
  *
- * @since 2.19
+ * @since 2.19 / 3.1
  */
-public class YAMLAnchorReplayingParser extends YAMLParser {
+public class YAMLAnchorReplayingParser extends YAMLParser
+{
     private static class AnchorContext {
         public final String anchor;
         public final List<Event> events = new ArrayList<>();
@@ -137,10 +138,17 @@ public class YAMLAnchorReplayingParser extends YAMLParser {
 
     @Override
     protected Event nextEvent() {
+        return nextEvent(true);
+    }
+
+    // @since 3.1.1
+    protected Event nextEvent(boolean recordEvents) {
         while (!refEvents.isEmpty()) {
             Event event = filterEvent(trackDepth(refEvents.removeFirst()));
             if (event != null) {
-                recordEvent(event);
+                if (recordEvents) {
+                    recordEvent(event);
+                }
                 return event;
             }
         }
@@ -158,7 +166,7 @@ public class YAMLAnchorReplayingParser extends YAMLParser {
                 if (refEvents.size() + events.size() > MAX_EVENTS)
 					throw new StreamConstraintsException("too many events to replay");
                 refEvents.addAll(events);
-                return nextEvent();
+                return nextEvent(recordEvents);
             }
             _reportError("invalid alias: " + alias.getAlias());
         }
@@ -184,18 +192,21 @@ public class YAMLAnchorReplayingParser extends YAMLParser {
         if (event instanceof ScalarEvent scalarEvent) {
             if (scalarEvent.getValue().equals("<<")) {
                 // expect next node to be a map
-                Event next = nextEvent();
+                // this mapping start event must not be registered by anchors; it is dropped so the contents are merged
+                Event next = nextEvent(false);
                 if (next instanceof MappingStartEvent) {
                     if (mergeStack.size() + 1 > MAX_MERGES)
 						throw new StreamConstraintsException("too many merges in the document");
                     mergeStack.push(globalDepth);
-                    return nextEvent();
+                    return nextEvent(recordEvents);
                 }
                 _reportError("found field '<<' but value isn't a map");
             }
         }
 
-        recordEvent(event);
+        if (recordEvents) {
+            recordEvent(event);
+        }
         return event;
     }
 }
