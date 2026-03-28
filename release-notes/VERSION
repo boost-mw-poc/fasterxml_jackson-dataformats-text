@@ -18,6 +18,9 @@ implementations)
 
 #9: Incorrect detection of `hasNextValue()` for simple iteration with `String[]`
  (fix by @cowtowncoder, w/ Claude code)
+#22: YAML anchors don't seem to work with `@JsonCreator`
+ (reported by Rye G)
+ (fix by @cowtowncoder, w/ Claude code)
 
 3.1.1 (27-Mar-2026)
 
