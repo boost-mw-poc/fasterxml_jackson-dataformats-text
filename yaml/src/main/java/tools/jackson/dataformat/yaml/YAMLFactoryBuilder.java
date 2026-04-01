@@ -42,6 +42,18 @@ public class YAMLFactoryBuilder
     protected SpecVersion _version;
 
     /**
+     * YAML schema for underlying parser to follow, if specified;
+     * left as {@code null} for backwards compatibility (which means
+     * whatever default settings {@code SnakeYAML} deems best).
+     * <p>
+     *     Ignored if you provide your own {@code LoadSettings}.
+     * </p>
+     *
+     * @since 3.2
+     */
+    protected YAMLSchema _schema;
+
+    /**
      * Configuration for underlying parser to follow, if specified;
      * left as {@code null} for backwards compatibility (which means
      * whatever default settings {@code SnakeYAML} deems best).
@@ -86,6 +98,7 @@ public class YAMLFactoryBuilder
     public YAMLFactoryBuilder(YAMLFactory base) {
         super(base);
         _version = base._version;
+        _schema  = base._schema;
         _quotingChecker = base._quotingChecker;
         _loadSettings = base._loadSettings;
         _dumpSettings = base._dumpSettings;
@@ -201,6 +214,22 @@ public class YAMLFactoryBuilder
     }
 
     /**
+     * Method for specifying the YAML schema to use during parsing; if
+     * {@code null} passed, will let {@code SnakeYAML} use its default settings.
+     *
+     * @param schema YAML schema to use for parsing, if not-null;
+     *    {@code null} for default handling
+     *
+     * @return This builder instance, to allow chaining
+     *
+     * @since 3.2
+     */
+    public YAMLFactoryBuilder yamlSchema(YAMLSchema schema) {
+        _schema = schema;
+        return this;
+    }
+
+    /**
      * Configuration for underlying parser to follow, if specified;
      * left as {@code null} for backwards compatibility (which means
      * whatever default settings {@code SnakeYAML} deems best).
@@ -255,6 +284,10 @@ public class YAMLFactoryBuilder
 
     public SpecVersion yamlVersionToWrite() {
         return _version;
+    }
+
+    public YAMLSchema yamlSchema() {
+        return _schema;
     }
 
     public StringQuotingChecker stringQuotingChecker() {

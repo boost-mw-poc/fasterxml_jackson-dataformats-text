@@ -140,6 +140,18 @@ public enum YAMLWriteFeature implements FormatFeature
      * Feature is disabled by default.
      */
     ALLOW_LONG_KEYS(false),
+
+    /**
+     * Whether non-finite float values (infinities and not-a-number) should be
+     * emitted using YAML notation ({@code .inf}, {@code -.inf}, {@code .nan})
+     * or Java notation ({@code Infinity}, {@code -Infinity}, {@code NaN}).
+     * <p>
+     * Feature is enabled by default. Disable it for backwards compatibility
+     * (pre-3.2 behavior).
+     *
+     * @since 3.2
+     */
+    USE_YAML_NONFINITE_NOTATION(true),
     ;
 
     private final boolean _defaultState;

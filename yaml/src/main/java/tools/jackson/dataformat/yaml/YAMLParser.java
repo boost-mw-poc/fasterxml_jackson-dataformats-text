@@ -3,6 +3,8 @@ package tools.jackson.dataformat.yaml;
 import java.io.*;
 import java.math.BigInteger;
 import java.util.Optional;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 import tools.jackson.core.*;
 import tools.jackson.core.base.ParserBase;
@@ -24,7 +26,6 @@ import org.snakeyaml.engine.v2.events.ScalarEvent;
 import org.snakeyaml.engine.v2.exceptions.Mark;
 import org.snakeyaml.engine.v2.nodes.Tag;
 import org.snakeyaml.engine.v2.parser.ParserImpl;
-import org.snakeyaml.engine.v2.resolver.JsonScalarResolver;
 import org.snakeyaml.engine.v2.resolver.ScalarResolver;
 import org.snakeyaml.engine.v2.scanner.StreamReader;
 
@@ -59,7 +60,7 @@ public class YAMLParser extends ParserBase
     protected final Reader _reader;
 
     protected final ParserImpl _yamlParser;
-    protected final ScalarResolver _yamlResolver = new JsonScalarResolver();
+    protected final ScalarResolver _yamlResolver;
 
     /*
     /**********************************************************************
@@ -126,6 +127,12 @@ public class YAMLParser extends ParserBase
      */
     protected boolean _emittingSyntheticEmptyObject;    
 
+    /**
+     * Patterns for matching YAML's notation for Infinity and NaN values.
+     */
+    protected final static Pattern _patternInf = Pattern.compile("([-+]?)\\.(?:inf|Inf|INF)");
+    protected final static Pattern _patternNaN = Pattern.compile("\\.(?:nan|NaN|NAN)");
+
     /*
     /**********************************************************************
     /* Life-cycle
@@ -136,31 +143,19 @@ public class YAMLParser extends ParserBase
             int streamReadFeatures, int formatFeatures,
             LoadSettings loadSettings, Reader reader)
     {
-        this(readCtxt, ioCtxt, br, streamReadFeatures, formatFeatures,
-                        reader,
-                        _defaultParserImpl(loadSettings, reader));
-    }
-    
-    protected YAMLParser(ObjectReadContext readCtxt, IOContext ioCtxt, BufferRecycler br,
-            int streamReadFeatures, int formatFeatures,
-            Reader reader,
-            ParserImpl yamlParser)
-    {
         super(readCtxt, ioCtxt, streamReadFeatures);
+        if (loadSettings == null) {
+            loadSettings = LoadSettings.builder().build();
+        }
         _formatFeatures = formatFeatures;
         _reader = reader;
-        _yamlParser = yamlParser;
+        _yamlParser = new ParserImpl(loadSettings, new StreamReader(loadSettings, reader));
+        _yamlResolver = loadSettings.getSchema().getScalarResolver();
+
         _cfgEmptyStringsToNull = YAMLReadFeature.EMPTY_STRING_AS_NULL.enabledIn(formatFeatures);
         DupDetector dups = StreamReadFeature.STRICT_DUPLICATE_DETECTION.enabledIn(streamReadFeatures)
                 ? DupDetector.rootDetector(this) : null;
         _streamReadContext = SimpleStreamReadContext.createRootContext(dups);
-    }
-
-    private static ParserImpl _defaultParserImpl(LoadSettings settings, Reader r) {
-        if (settings == null) {
-            settings = LoadSettings.builder().build();
-        }
-        return new ParserImpl(settings, new StreamReader(settings, r));
     }
 
     /*
@@ -629,6 +624,8 @@ public class YAMLParser extends ParserBase
             switch (ch) {
             case 'b': case 'B': // binary
                 return _decodeNumberIntBinary(value, i+1, len, _numberNegative);
+            case 'o':
+                return _decodeNumberIntOctal(value, i+1, len, _numberNegative);
             case 'x': case 'X': // hex
                 return _decodeNumberIntHex(value, i+1, len, _numberNegative);
             case '0': case '1': case '2': case '3': case '4':
@@ -1163,6 +1160,20 @@ public class YAMLParser extends ParserBase
 
     private JsonToken _cleanYamlFloat(String str)
     {
+        Matcher matcher = _patternInf.matcher(str);
+        if (matcher.matches()) {
+            if (matcher.group(1).equals("-")) {
+                return resetAsNaN(str, Double.NEGATIVE_INFINITY);
+            }
+            else {
+                return resetAsNaN(str, Double.POSITIVE_INFINITY);
+            }
+        }
+
+        if (_patternNaN.matcher(str).matches()) {
+            return resetAsNaN(str, Double.NaN);
+        }
+
         // Here we do NOT yet know whether we might have underscores so check
         final int len = str.length();
         int ix = str.indexOf('_');

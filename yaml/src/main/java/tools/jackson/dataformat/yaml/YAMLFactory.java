@@ -4,7 +4,11 @@ import java.io.*;
 
 import org.snakeyaml.engine.v2.api.DumpSettings;
 import org.snakeyaml.engine.v2.api.LoadSettings;
+import org.snakeyaml.engine.v2.api.LoadSettingsBuilder;
 import org.snakeyaml.engine.v2.common.SpecVersion;
+import org.snakeyaml.engine.v2.schema.CoreSchema;
+import org.snakeyaml.engine.v2.schema.FailsafeSchema;
+import org.snakeyaml.engine.v2.schema.JsonSchema;
 
 import tools.jackson.core.*;
 import tools.jackson.core.base.TextualTSFactory;
@@ -47,6 +51,12 @@ public class YAMLFactory
      * YAML version for underlying generator to follow, if specified.
      */
     protected final SpecVersion _version;
+
+    /**
+     * YAML schema for underlying parser to follow, if specified.
+     * @since 3.2
+     */
+    protected final YAMLSchema _schema;
 
     /**
      * Helper object used to determine whether property names, String values
@@ -98,6 +108,7 @@ public class YAMLFactory
         // 26-Jul-2013, tatu: Seems like we should force output as 1.1 but
         //  that adds version declaration which looks ugly...
         _version = null;
+        _schema  = null;
         _quotingChecker = StringQuotingChecker.Default.instance();
         _loadSettings = null;
         _dumpSettings = null;
@@ -107,6 +118,7 @@ public class YAMLFactory
     {
         super(src);
         _version = src._version;
+        _schema  = src._schema;
         _quotingChecker = src._quotingChecker;
         _loadSettings = src._loadSettings;
         _dumpSettings = src._dumpSettings;
@@ -121,8 +133,32 @@ public class YAMLFactory
     {
         super(b);
         _version = b.yamlVersionToWrite();
+        _schema  = b.yamlSchema();
         _quotingChecker = b.stringQuotingChecker();
-        _loadSettings = b.loadSettings();
+
+        if (b.loadSettings() == null) {
+            LoadSettingsBuilder builder = LoadSettings.builder();
+            if (_schema != null) {
+                switch (_schema) {
+                    case FAILSAFE:
+                        builder.setSchema(new FailsafeSchema());
+                        break;
+                    case JSON:
+                        builder.setSchema(new JsonSchema());
+                        break;
+                    case CORE:
+                        builder.setSchema(new CoreSchema());
+                        break;
+                    default:
+                        break;
+                }
+            }
+            _loadSettings = builder.build();
+        }
+        else {
+            _loadSettings = b.loadSettings();
+        }
+
         _dumpSettings = b.dumpSettings();
     }
 
