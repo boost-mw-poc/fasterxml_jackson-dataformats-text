@@ -36,10 +36,16 @@ public class CsvEncoder
     protected final static int SHORT_WRITE = 32;
 
     /**
-     * Also: only do check for optional quotes for short
-     * values; longer ones will always be quoted.
+     * Default maximum length of a column value that will be inspected
+     * character-by-character to determine whether quoting is needed
+     * (when not using {@link CsvWriteFeature#STRICT_CHECK_FOR_QUOTING}).
+     * Values longer than this are always quoted as a performance optimization.
+     *<p>
+     * Configurable via {@link tools.jackson.dataformat.csv.CsvFactoryBuilder#maxQuoteCheckChars(int)}.
+     *
+     * @since 3.2
      */
-    protected final static int MAX_QUOTE_CHECK = 24;
+    public final static int DEFAULT_MAX_QUOTE_CHECK = 24;
     
     protected final BufferedValue[] NO_BUFFERED = new BufferedValue[0];
 
@@ -186,8 +192,12 @@ public class CsvEncoder
     /**********************************************************************
      */
 
+    /**
+     * @since 3.2
+     */
     public CsvEncoder(IOContext ctxt, int csvFeatures, Writer out, CsvSchema schema,
-            CharacterEscapes esc, boolean useFastDoubleWriter)
+            CharacterEscapes esc, boolean useFastDoubleWriter,
+            int maxQuoteCheckChars)
     {
         _ioContext = ctxt;
         _csvFeatures = csvFeatures;
@@ -218,7 +228,7 @@ public class CsvEncoder
 
         _cfgMinSafeChar = _calcSafeChar();
 
-        _cfgMaxQuoteCheckChars = MAX_QUOTE_CHECK;
+        _cfgMaxQuoteCheckChars = maxQuoteCheckChars;
 
         _cfgQuoteCharEscapeChar = _getQuoteCharEscapeChar(
                 _cfgEscapeQuoteCharWithEscapeChar,
@@ -229,6 +239,14 @@ public class CsvEncoder
         _cfgControlCharEscapeChar = _cfgEscapeCharacter > 0 ? (char) _cfgEscapeCharacter : '\\';
 
         _verifyConfiguration(schema);
+    }
+
+    @Deprecated // @since 3.2
+    public CsvEncoder(IOContext ctxt, int csvFeatures, Writer out, CsvSchema schema,
+            CharacterEscapes esc, boolean useFastDoubleWriter)
+    {
+        this(ctxt, csvFeatures, out, schema, esc, useFastDoubleWriter,
+                DEFAULT_MAX_QUOTE_CHECK);
     }
 
     public CsvEncoder(CsvEncoder base, CsvSchema newSchema)

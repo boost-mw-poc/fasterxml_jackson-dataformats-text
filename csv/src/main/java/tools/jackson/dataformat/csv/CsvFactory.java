@@ -6,6 +6,7 @@ import tools.jackson.core.*;
 import tools.jackson.core.base.TextualTSFactory;
 import tools.jackson.core.io.IOContext;
 
+import tools.jackson.dataformat.csv.impl.CsvEncoder;
 import tools.jackson.dataformat.csv.impl.CsvParserBootstrapper;
 import tools.jackson.dataformat.csv.impl.UTF8Writer;
 
@@ -43,6 +44,13 @@ public class CsvFactory
 
     protected final CsvCharacterEscapes _characterEscapes;
 
+    /**
+     * @see CsvFactoryBuilder#maxQuoteCheckChars(int)
+     *
+     * @since 3.2
+     */
+    protected final int _maxQuoteCheckChars;
+
     /*
     /**********************************************************************
     /* Factory construction, configuration
@@ -65,12 +73,14 @@ public class CsvFactory
                 DEFAULT_CSV_PARSER_FEATURE_FLAGS,
                 DEFAULT_CSV_GENERATOR_FEATURE_FLAGS);
         _characterEscapes = null; // derive from flags
+        _maxQuoteCheckChars = CsvEncoder.DEFAULT_MAX_QUOTE_CHECK;
     }
 
     protected CsvFactory(CsvFactory src)
     {
         super(src);
         _characterEscapes = src._characterEscapes;
+        _maxQuoteCheckChars = src._maxQuoteCheckChars;
     }
 
     /**
@@ -82,6 +92,7 @@ public class CsvFactory
     {
         super(b);
         _characterEscapes = b.characterEscapes();
+        _maxQuoteCheckChars = b.maxQuoteCheckChars();
     }
 
     @Override
@@ -283,7 +294,8 @@ public class CsvFactory
         return new CsvGenerator(writeCtxt, ioCtxt,
                 writeCtxt.getStreamWriteFeatures(_streamWriteFeatures),
                 writeCtxt.getFormatWriteFeatures(_formatWriteFeatures),
-                out, _getSchema(writeCtxt), _characterEscapes);
+                out, _getSchema(writeCtxt), _characterEscapes,
+                _maxQuoteCheckChars);
     }
 
     @SuppressWarnings("resource")
@@ -295,7 +307,7 @@ public class CsvFactory
                 writeCtxt.getStreamWriteFeatures(_streamWriteFeatures),
                 writeCtxt.getFormatWriteFeatures(_formatWriteFeatures),
                 new UTF8Writer(ioCtxt, out), _getSchema(writeCtxt),
-                _characterEscapes);
+                _characterEscapes, _maxQuoteCheckChars);
     }
 
     private final CsvSchema _getSchema(ObjectWriteContext writeCtxt) {
