@@ -5,6 +5,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Arrays;
 
 import tools.jackson.core.*;
 import tools.jackson.core.JsonParser.NumberType;
@@ -127,6 +128,15 @@ public class CsvDecoder
      * Index of character after last available one in the buffer.
      */
     protected int _inputEnd = 0;
+
+    /**
+     * Lazily-allocated buffer for tracking leading whitespace consumed
+     * while looking ahead for a quote character ([dataformats-text#643]).
+     * Reused across calls to avoid repeated allocation.
+     *
+     * @since 3.2
+     */
+    protected char[] _leadingSpaceBuf;
 
     /**
      * Marker to indicate that a linefeed was encountered and now
@@ -605,7 +615,7 @@ public class CsvDecoder
         return false; // end of input
     }
 
-    private void _skipCommentContents() throws JacksonException
+    protected void _skipCommentContents() throws JacksonException
     {
         while ((_inputPtr < _inputEnd) || loadMore()) {
             char ch = _inputBuffer[_inputPtr++];
@@ -631,7 +641,7 @@ public class CsvDecoder
      *   {@code false} if the row contains non-empty content (consumed separators
      *   will be replayed via {@link #_pendingEmptyColumns})
      */
-    private boolean _trySkipEmptyRow() throws JacksonException
+    protected boolean _trySkipEmptyRow() throws JacksonException
     {
         int separatorCount = 0;
         while (true) {
@@ -720,6 +730,59 @@ public class CsvDecoder
             i = _skipLeadingSpace();
         } else {
             i = _nextChar();
+            // [dataformats-text#643]: Even without TRIM_SPACES, spaces before
+            // a quoted value are insignificant and should be skipped.
+            // Consume whitespace across buffer boundaries; if a quote follows,
+            // discard the spaces and parse as quoted. If not, restore consumed
+            // spaces into the unquoted output.
+            if (i <= ' ' && i > 0
+                    && i != _separatorChar && i != INT_CR && i != INT_LF) {
+                // Lazily allocate / reuse buffer for consumed whitespace
+                char[] spaceBuf = _leadingSpaceBuf;
+                if (spaceBuf == null) {
+                    _leadingSpaceBuf = spaceBuf = new char[16];
+                }
+                int spaceCount = 0;
+                spaceBuf[spaceCount++] = (char) i;
+                boolean foundQuote = false;
+
+                while (true) {
+                    if (_inputPtr >= _inputEnd) {
+                        if (!loadMore()) {
+                            break;
+                        }
+                    }
+                    final char ch = _inputBuffer[_inputPtr];
+                    if (ch == _quoteChar) {
+                        // Found quote: discard leading spaces, proceed as quoted
+                        _inputPtr++;
+                        i = _quoteChar;
+                        foundQuote = true;
+                        break;
+                    }
+                    if (ch > ' ' || ch == _separatorChar
+                            || ch == '\r' || ch == '\n') {
+                        break;
+                    }
+                    // Consume this whitespace character, tracking it for restoration
+                    _inputPtr++;
+                    if (spaceCount >= spaceBuf.length) {
+                        _leadingSpaceBuf = spaceBuf =
+                                Arrays.copyOf(spaceBuf, spaceBuf.length * 2);
+                    }
+                    spaceBuf[spaceCount++] = ch;
+                }
+
+                if (!foundQuote && spaceCount > 0) {
+                    // Not a quoted value: restore consumed whitespace into unquoted output
+                    _tokenInputTotal = _currInputProcessed + _inputPtr - 1;
+                    _tokenInputRow = _currInputRow;
+                    _tokenInputCol = _inputPtr - _currInputRowStart - 1;
+                    _textBuffer.resetWithCopy(spaceBuf, 0, spaceCount);
+                    return _nextUnquotedString(_textBuffer.getBufferWithoutReset(),
+                            spaceCount);
+                }
+            }
         }
         // First, need to ensure we know the starting location of token
         _tokenInputTotal = _currInputProcessed + _inputPtr - 1;
