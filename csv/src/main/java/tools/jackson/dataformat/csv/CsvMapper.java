@@ -379,6 +379,14 @@ public class CsvMapper extends ObjectMapper
      * POJO type, using default serialization settings including ordering.
      * Definition will not be strictly typed (that is, all columns are
      * just defined to be exposed as String tokens).
+     *<p>
+     * NOTE: the column order in the resulting schema is determined by POJO
+     * property introspection order (which may differ from CSV column order).
+     * If the schema is used with
+     * {@link CsvSchema#withHeader() withHeader()} to read CSV data whose
+     * column order differs from the POJO property order, also enable
+     * {@link CsvSchema#withColumnReordering(boolean) withColumnReordering(true)}
+     * so that columns are matched by name rather than position.
      */
     public CsvSchema schemaFor(JavaType pojoType) {
         return _schemaFor(pojoType, _untypedSchemas, false, null);
@@ -407,9 +415,17 @@ public class CsvMapper extends ObjectMapper
     /**
      * Method that can be used to determine a CSV schema to use for given
      * POJO type, using default serialization settings including ordering.
-     * Definition WILL be strictly typed: that is, code will try to 
+     * Definition WILL be strictly typed: that is, code will try to
      * determine type limitations which may make parsing more efficient
      * (especially for numeric types like java.lang.Integer).
+     *<p>
+     * NOTE: the column order in the resulting schema is determined by POJO
+     * property introspection order (which may differ from CSV column order).
+     * If the schema is used with
+     * {@link CsvSchema#withHeader() withHeader()} to read CSV data whose
+     * column order differs from the POJO property order, also enable
+     * {@link CsvSchema#withColumnReordering(boolean) withColumnReordering(true)}
+     * so that columns are matched by name rather than position.
      */
     public CsvSchema typedSchemaFor(JavaType pojoType) {
         return _schemaFor(pojoType, _typedSchemas, true, null);

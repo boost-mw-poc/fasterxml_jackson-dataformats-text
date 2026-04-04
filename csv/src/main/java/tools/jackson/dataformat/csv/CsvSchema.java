@@ -652,6 +652,14 @@ public class CsvSchema
          * Method for specifying whether Schema should indicate that
          * a header line (first row that contains column names) is to be
          * used for reading and writing or not.
+         *<p>
+         * NOTE: when the schema already has columns defined, enabling this flag
+         * alone will cause the header line to be consumed but will NOT reorder
+         * the schema columns to match the CSV header order — columns are matched
+         * by position. To match columns by header name instead, also call
+         * {@link #setReorderColumns(boolean) setReorderColumns(true)}.
+         *
+         * @see #setReorderColumns(boolean)
          */
         public Builder setUseHeader(boolean b) {
             _feature(ENCODING_FEATURE_USE_HEADER, b);
@@ -659,13 +667,17 @@ public class CsvSchema
         }
 
         /**
-         * Use in combination with setUseHeader.  When use header flag is
-         * is set, this setting will reorder the columns defined in this
-         * schema to match the order set by the header.
+         * Use in combination with {@link #setUseHeader(boolean)}.  When the use-header
+         * flag is set, enabling this setting will cause the parser to rebuild the
+         * schema column order from the actual CSV header line, matching columns
+         * by name (while preserving their types from the original schema).
+         * Without this, columns are matched by position only, regardless of header names.
          *
-         * @param b         Enable / Disable this setting
-         * @return          This Builder instance
+         * @param b {@code true} to enable column reordering from CSV header,
+         *  {@code false} to disable (default)
+         * @return This Builder instance
          *
+         * @see #setUseHeader(boolean)
          * @since 2.7
          */
         public Builder setReorderColumns(boolean b) {
@@ -1031,12 +1043,25 @@ public class CsvSchema
     }
 
     /**
-     * Returns a clone of this instance by changing or setting the
-     * column reordering flag
+     * Returns a clone of this instance with column reordering enabled or disabled.
+     * Only meaningful when used in combination with {@link #withHeader()}.
+     *<p>
+     * When this is enabled (and the schema uses a header line), the parser will
+     * rebuild the column ordering from the actual CSV header, matching columns
+     * by name against those defined in the schema (preserving their types).
+     * This allows parsing CSV files whose column order differs from the order
+     * in which columns were defined in the schema (for example, via
+     * {@link CsvMapper#schemaFor(Class)}).
+     *<p>
+     * When disabled (the default), columns are matched by <b>position only</b>:
+     * the first CSV value maps to the first schema column, the second to the
+     * second, and so on — regardless of what the header names say.
      *
-     * @param state     New value for setting
-     * @return          A copy of itself, ensuring the setting for
-     *                  the column reordering feature.
+     * @param state     {@code true} to enable column reordering from CSV header,
+     *                  {@code false} to disable (default)
+     * @return          A copy of this schema with the updated setting
+     *
+     * @see #withHeader()
      * @since 2.7
      */
     public CsvSchema withColumnReordering(boolean state) {
@@ -1058,14 +1083,35 @@ public class CsvSchema
 
     /**
      * Helper method for constructing and returning schema instance that
-     * is similar to this one, except that it will be using header line.
+     * is similar to this one, except that it will be using header line
+     * (first row of CSV content used for reading and/or writing column names).
+     *&lt;p&gt;
+     * NOTE: when this schema already has columns defined (for example, via
+     * {@link CsvMapper#schemaFor(Class)}), and the CSV input has a header line
+     * with columns in a different order than defined in the schema, columns
+     * will be matched by their <b>position</b> in the schema — not by
+     * the header names — unless {@link #withColumnReordering(boolean)} is
+     * also enabled. Without column reordering, the header line is consumed
+     * (validated or skipped) but does NOT change the column order of the schema.
+     * This can lead to values being mapped to wrong properties if the CSV column
+     * order differs from the schema column order.
+     *<p>
+     * To use header names for column matching regardless of order, call:
+     *<pre>
+     *   schema.withHeader().withColumnReordering(true)
+     *</pre>
+     * Alternatively, if you do not need type information from the schema,
+     * use {@link CsvSchema#emptySchema()}{@code .withHeader()} which always
+     * builds its column definitions from the header line.
+     *
+     * @see #withColumnReordering(boolean)
      */
     public CsvSchema withHeader() {
         return _withFeature(ENCODING_FEATURE_USE_HEADER, true);
     }
 
     /**
-     * Helper method for construcing and returning schema instance that
+     * Helper method for constructing and returning schema instance that
      * is similar to this one, except that it will not be using header line.
      */
     public CsvSchema withoutHeader() {
@@ -1362,6 +1408,13 @@ public class CsvSchema
      */
 
     public boolean usesHeader() { return (_features & ENCODING_FEATURE_USE_HEADER) != 0; }
+
+    /**
+     * Whether column reordering from the CSV header line is enabled.
+     *
+     * @see #withColumnReordering(boolean)
+     * @since 2.7
+     */
     public boolean reordersColumns() { return (_features & ENCODING_FEATURE_REORDER_COLUMNS) != 0; }
     public boolean skipsFirstDataRow() { return (_features & ENCODING_FEATURE_SKIP_FIRST_DATA_ROW) != 0; }
     public boolean allowsComments() { return (_features & ENCODING_FEATURE_ALLOW_COMMENTS) != 0; }
