@@ -1117,15 +1117,18 @@ public class CsvEncoder
         if (!CsvWriteFeature.WRITE_LINEFEED_AFTER_LAST_ROW.enabledIn(_csvFeatures)) {
             _removeTrailingLF();
         }
-        _flushBuffer();
-        if (autoClose) {
-            _out.close();
-        } else if (flushStream) {
-            // If we can't close it, we should at least flush
-            _out.flush();
+        try {
+            _flushBuffer();
+        } finally {
+            if (autoClose) {
+                _out.close();
+            } else if (flushStream) {
+                // If we can't close it, we should at least flush
+                _out.flush();
+            }
+            // Internal buffer(s) generator has can now be released as well
+            _releaseBuffers();
         }
-        // Internal buffer(s) generator has can now be released as well
-        _releaseBuffers();
     }
 
     private void _removeTrailingLF() throws IOException {
