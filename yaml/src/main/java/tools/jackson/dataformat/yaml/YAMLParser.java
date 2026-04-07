@@ -1100,29 +1100,46 @@ public class YAMLParser extends ParserBase
     @Override
     public String getTypeId() throws JacksonException
     {
-        Optional<String> tagOpt;
-        if (_lastTagEvent instanceof CollectionStartEvent) {
-            tagOpt = ((CollectionStartEvent) _lastTagEvent).getTag();
-  //System.err.println("getTypeId() at "+currentToken()+", last was collection ("+_lastTagEvent.getClass().getSimpleName()+") -> "+tag);
-        } else if (_lastTagEvent instanceof ScalarEvent) {
-            tagOpt = ((ScalarEvent) _lastTagEvent).getTag();
-          //System.err.println("getTypeId() at "+currentToken()+", last was scalar -> "+tag+", scalar == "+_lastEvent);
-        } else {
-//System.err.println("getTypeId(), something else, curr token: "+currentToken());
-            return null;
-        }
-        if (tagOpt.isPresent()) {
-            String tag = tagOpt.get();
+        String tag = _currentTag().orElse(null);
+        if (tag != null) {
             // 04-Aug-2013, tatu: Looks like YAML parser's expose these in... somewhat exotic
             //   ways sometimes. So let's prepare to peel off some wrappings:
             while (tag.startsWith("!")) {
                 tag = tag.substring(1);
             }
-            return tag;
         }
-        return null;
+        return tag;
     }
-    
+
+    /**
+     * Method that can be used to access the YAML tag of the current token,
+     * in its raw form: that is, without stripping leading "!" prefix(es)
+     * (unlike {@link #getTypeId()} which does strip them).
+     *<p>
+     * Note that "raw" here means raw with respect to Jackson's processing;
+     * SnakeYAML Engine may have already resolved some tag syntax (for example,
+     * verbatim tags like {@code !<tag>} are resolved to their URI content).
+     *
+     * @return Raw YAML tag of the current token, if any; {@code null} if none
+     *
+     * @since 3.2
+     */
+    public String getRawTag()
+    {
+        return _currentTag().orElse(null);
+    }
+
+    // @since 3.2
+    protected Optional<String> _currentTag()
+    {
+        if (_lastTagEvent instanceof CollectionStartEvent cse) {
+            return cse.getTag();
+        } else if (_lastTagEvent instanceof ScalarEvent se) {
+            return se.getTag();
+        }
+        return Optional.empty();
+    }
+
     /*
     /**********************************************************************
     /* Internal methods
