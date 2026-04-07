@@ -165,7 +165,29 @@ public class CsvGenerator extends GeneratorBase
 
     /*
     /**********************************************************************
-    /* Overridden output state handling methods
+    /* Overrides: capability introspection methods
+    /**********************************************************************
+     */
+
+    @Override
+    public boolean canOmitProperties() {
+        // Nope: CSV requires at least a placeholder
+        return false;
+    }
+
+    @Override
+    public boolean has(StreamWriteCapability capability) {
+        return DEFAULT_TEXTUAL_WRITE_CAPABILITIES.isEnabled(capability);
+    }
+
+    @Override
+    public JacksonFeatureSet<StreamWriteCapability> streamWriteCapabilities() {
+        return DEFAULT_TEXTUAL_WRITE_CAPABILITIES;
+    }
+
+    /*
+    /**********************************************************************
+    /* Overrides: output state handling methods
     /**********************************************************************
      */
     
@@ -220,23 +242,6 @@ public class CsvGenerator extends GeneratorBase
     @Override
     public PrettyPrinter getPrettyPrinter() {
         return null;
-    }
-
-    /*
-    /**********************************************************************
-    /* Public API, capability introspection methods
-    /**********************************************************************
-     */
-
-    @Override
-    public boolean canOmitProperties() {
-        // Nope: CSV requires at least a placeholder
-        return false;
-    }
-
-    @Override // @since 2.12
-    public JacksonFeatureSet<StreamWriteCapability> streamWriteCapabilities() {
-        return DEFAULT_TEXTUAL_WRITE_CAPABILITIES;
     }
 
     /*

@@ -196,10 +196,46 @@ public class YAMLGenerator extends GeneratorBase
 
     /*
     /**********************************************************************
-    /* Overridden output state handling methods
+    /* Overrides: capability introspection
     /**********************************************************************
      */
     
+    @Override // @since 3.2
+    public boolean canWriteComments() {
+        // 06-Apr-2026, tatu: as per [dataformats-text#36]:
+        return true;
+    }
+
+    @Override
+    public boolean canWriteObjectId() {
+        // yes, YAML does support Native Type Ids!
+        // 10-Sep-2014, tatu: Except as per [#23] might not want to...
+        return YAMLWriteFeature.USE_NATIVE_OBJECT_ID.enabledIn(_formatWriteFeatures);
+    }
+
+    @Override
+    public boolean canWriteTypeId() {
+        // yes, YAML does support Native Type Ids!
+        // 10-Sep-2014, tatu: Except as per [#22] might not want to...
+        return YAMLWriteFeature.USE_NATIVE_TYPE_ID.enabledIn(_formatWriteFeatures);
+    }
+
+    @Override
+    public boolean has(StreamWriteCapability capability) {
+        return DEFAULT_TEXTUAL_WRITE_CAPABILITIES.isEnabled(capability);
+    }
+
+    @Override
+    public JacksonFeatureSet<StreamWriteCapability> streamWriteCapabilities() {
+        return DEFAULT_TEXTUAL_WRITE_CAPABILITIES;
+    }
+
+    /*
+    /**********************************************************************
+    /* Overridden output state handling methods
+    /**********************************************************************
+     */
+
     @Override
     public final TokenStreamContext streamWriteContext() { return _streamWriteContext; }
 
@@ -233,11 +269,6 @@ public class YAMLGenerator extends GeneratorBase
         return -1;
     }
 
-    @Override
-    public JacksonFeatureSet<StreamWriteCapability> streamWriteCapabilities() {
-        return DEFAULT_TEXTUAL_WRITE_CAPABILITIES;
-    }
-
     /*
     /**********************************************************************
     /* Overrides: config access
@@ -257,52 +288,6 @@ public class YAMLGenerator extends GeneratorBase
 
     public final boolean isEnabled(YAMLWriteFeature f) {
         return (_formatWriteFeatures & f.getMask()) != 0;
-    }
-
-    /**
-     * Method for writing a YAML comment.
-     * If called right after {@link #writeName}, the comment is emitted as an
-     * end-of-line (inline) comment on the property name line; otherwise it is
-     * emitted as a block comment (full line starting with {@code #}).
-     *<p>
-     * If {@code text} is {@code null}, an empty (blank) line is emitted instead.
-     *<p>
-     * Multi-line comments are supported: if the text contains newlines,
-     * each line will be emitted as a separate comment line.
-     *<p>
-     * Note: YAML comments are presentation detail and are not part of the
-     * serialization model per the YAML specification.
-     *
-     * @param text Comment text to write (without the leading {@code #});
-     *    if {@code null}, writes an empty line
-     *
-     * @return This generator, to allow call chaining
-     *
-     * @throws JacksonException if there is a problem emitting the comment
-     *
-     * @since 3.2
-     */
-    @Override
-    public YAMLGenerator writeComment(String text) throws JacksonException
-    {
-        if (text == null) {
-            _emit(new CommentEvent(CommentType.BLANK_LINE, "",
-                    Optional.empty(), Optional.empty()));
-            return this;
-        }
-        // If we just wrote a property name (expecting value next),
-        // emit as an inline (end-of-line) comment; otherwise as a block comment
-        final CommentType type = (_streamWriteContext.inObject()
-                && _streamWriteContext.hasCurrentName())
-                ? CommentType.IN_LINE : CommentType.BLOCK;
-        // Split multi-line comments into separate CommentEvents;
-        // handle all standard linefeeds: "\r\n", "\r", "\n"
-        String[] lines = NEWLINE_SPLITTER_P.split(text, -1);
-        for (String line : lines) {
-            _emit(new CommentEvent(type, line,
-                    Optional.empty(), Optional.empty()));
-        }
-        return this;
     }
 
     /*
@@ -760,26 +745,6 @@ public class YAMLGenerator extends GeneratorBase
     /**********************************************************************
      */
 
-    @Override // @since 3.2
-    public boolean canWriteComments() {
-        // 06-Apr-2026, tatu: as per [dataformats-text#36]:
-        return true;
-    }
-
-    @Override
-    public boolean canWriteObjectId() {
-        // yes, YAML does support Native Type Ids!
-        // 10-Sep-2014, tatu: Except as per [#23] might not want to...
-        return YAMLWriteFeature.USE_NATIVE_OBJECT_ID.enabledIn(_formatWriteFeatures);
-    }
-
-    @Override
-    public boolean canWriteTypeId() {
-        // yes, YAML does support Native Type Ids!
-        // 10-Sep-2014, tatu: Except as per [#22] might not want to...
-        return YAMLWriteFeature.USE_NATIVE_TYPE_ID.enabledIn(_formatWriteFeatures);
-    }
-
     @Override
     public JsonGenerator writeTypeId(Object id)
         throws JacksonException
@@ -805,6 +770,58 @@ public class YAMLGenerator extends GeneratorBase
     {
         // should we verify there's no preceding id?
         _objectId = (id == null) ? null : String.valueOf(id);
+        return this;
+    }
+
+    /*
+    /**********************************************************************
+    /* Output method implementations, other
+    /**********************************************************************
+     */
+
+    /**
+     * Method for writing a YAML comment.
+     * If called right after {@link #writeName}, the comment is emitted as an
+     * end-of-line (inline) comment on the property name line; otherwise it is
+     * emitted as a block comment (full line starting with {@code #}).
+     *<p>
+     * If {@code text} is {@code null}, an empty (blank) line is emitted instead.
+     *<p>
+     * Multi-line comments are supported: if the text contains newlines,
+     * each line will be emitted as a separate comment line.
+     *<p>
+     * Note: YAML comments are presentation detail and are not part of the
+     * serialization model per the YAML specification.
+     *
+     * @param text Comment text to write (without the leading {@code #});
+     *    if {@code null}, writes an empty line
+     *
+     * @return This generator, to allow call chaining
+     *
+     * @throws JacksonException if there is a problem emitting the comment
+     *
+     * @since 3.2
+     */
+    @Override
+    public YAMLGenerator writeComment(String text) throws JacksonException
+    {
+        if (text == null) {
+            _emit(new CommentEvent(CommentType.BLANK_LINE, "",
+                    Optional.empty(), Optional.empty()));
+            return this;
+        }
+        // If we just wrote a property name (expecting value next),
+        // emit as an inline (end-of-line) comment; otherwise as a block comment
+        final CommentType type = (_streamWriteContext.inObject()
+                && _streamWriteContext.hasCurrentName())
+                ? CommentType.IN_LINE : CommentType.BLOCK;
+        // Split multi-line comments into separate CommentEvents;
+        // handle all standard linefeeds: "\r\n", "\r", "\n"
+        String[] lines = NEWLINE_SPLITTER_P.split(text, -1);
+        for (String line : lines) {
+            _emit(new CommentEvent(type, line,
+                    Optional.empty(), Optional.empty()));
+        }
         return this;
     }
 

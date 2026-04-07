@@ -99,7 +99,32 @@ public abstract class JavaPropsGenerator
 
     /*
     /**********************************************************************
-    /* Overridden output state handling methods
+    /* Overrides: capability introspection methods
+    /**********************************************************************
+     */
+
+    // Base class impl fine:
+    //@Override public boolean canWriteObjectId() { return false; }
+
+    // Base class impl fine:
+    //@Override public boolean canWriteTypeId() { return false; }
+
+    // Base class impl fine:
+    //@Override public boolean canOmitProperties() { return true; }
+
+    @Override
+    public boolean has(StreamWriteCapability capability) {
+        return DEFAULT_TEXTUAL_WRITE_CAPABILITIES.isEnabled(capability);
+    }
+
+    @Override
+    public JacksonFeatureSet<StreamWriteCapability> streamWriteCapabilities() {
+        return DEFAULT_TEXTUAL_WRITE_CAPABILITIES;
+    }
+
+    /*
+    /**********************************************************************
+    /* Overrides: output state handling methods
     /**********************************************************************
      */
 
@@ -120,7 +145,7 @@ public abstract class JavaPropsGenerator
 
     /*
     /**********************************************************************
-    /* Overridden methods, configuration
+    /* Overrides: configuration
     /**********************************************************************
      */
 
@@ -141,26 +166,6 @@ public abstract class JavaPropsGenerator
     
     @Override
     public FormatSchema getSchema() { return _schema; }
-
-    /*
-    /**********************************************************************
-    /* Overrides: capability introspection methods
-    /**********************************************************************
-     */
-
-    @Override
-    public boolean canWriteObjectId() { return false; }
-
-    @Override
-    public boolean canWriteTypeId() { return false; }
-
-    @Override
-    public boolean canOmitProperties() { return true; }
-
-    @Override
-    public JacksonFeatureSet<StreamWriteCapability> streamWriteCapabilities() {
-        return DEFAULT_TEXTUAL_WRITE_CAPABILITIES;
-    }
 
     /*
     /**********************************************************************
