@@ -57,6 +57,20 @@ public enum CsvWriteFeature
     ALWAYS_QUOTE_EMPTY_STRINGS(false),
 
     /**
+     * Feature that determines whether String values with leading or trailing
+     * whitespace (any character {@code <= 0x0020}, including space and tab)
+     * should be forced to be quoted.
+     * This is useful for interoperability with CSV parsers that trim unquoted
+     * whitespace.
+     *<p>
+     * Default value is {@code false} so that leading/trailing whitespace
+     * does not by itself trigger quoting.
+     *
+     * @since 3.2
+     */
+    QUOTE_STRINGS_WITH_LEADING_TRAILING_WHITESPACE(false),
+
+    /**
      * Feature that determines whether values written as Nymbers (from {@code java.lang.Number}
      * valued POJO properties) should be forced to be quoted, regardless of whether they
      * actually need this.

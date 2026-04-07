@@ -91,33 +91,36 @@ public class CsvEncoder
      */
     protected final int _cfgMinSafeChar;
 
-    protected int _csvFeatures;
+    protected final int _csvFeatures;
 
     /**
      * Marker flag used to determine if to do optimal (aka "strict") quoting
      * checks or not (looser conservative check)
      */
-    protected boolean _cfgOptimalQuoting;
+    protected final boolean _cfgOptimalQuoting;
 
     protected final boolean _cfgAllowsComments;
 
-    protected boolean _cfgIncludeMissingTail;
+    protected final boolean _cfgIncludeMissingTail;
 
-    protected boolean _cfgAlwaysQuoteStrings;
+    protected final boolean _cfgAlwaysQuoteStrings;
 
-    protected boolean _cfgAlwaysQuoteEmptyStrings;
+    protected final boolean _cfgAlwaysQuoteEmptyStrings;
 
     // @since 2.16
-    protected boolean _cfgAlwaysQuoteNumbers;
+    protected final boolean _cfgAlwaysQuoteNumbers;
 
-    protected boolean _cfgEscapeQuoteCharWithEscapeChar;
+    // @since 3.2
+    protected final boolean _cfgQuoteLeadingTrailingWhitespace;
 
-    protected boolean _cfgEscapeControlCharWithEscapeChar;
+    protected final boolean _cfgEscapeQuoteCharWithEscapeChar;
+
+    protected final boolean _cfgEscapeControlCharWithEscapeChar;
 
     /**
      * @since 2.14
      */
-    protected boolean _cfgUseFastDoubleWriter;
+    protected final boolean _cfgUseFastDoubleWriter;
 
     protected final char _cfgQuoteCharEscapeChar;
 
@@ -207,6 +210,7 @@ public class CsvEncoder
         _cfgAlwaysQuoteStrings = CsvWriteFeature.ALWAYS_QUOTE_STRINGS.enabledIn(csvFeatures);
         _cfgAlwaysQuoteEmptyStrings = CsvWriteFeature.ALWAYS_QUOTE_EMPTY_STRINGS.enabledIn(csvFeatures);
         _cfgAlwaysQuoteNumbers = CsvWriteFeature.ALWAYS_QUOTE_NUMBERS.enabledIn(csvFeatures);
+        _cfgQuoteLeadingTrailingWhitespace = CsvWriteFeature.QUOTE_STRINGS_WITH_LEADING_TRAILING_WHITESPACE.enabledIn(csvFeatures);
         _cfgEscapeQuoteCharWithEscapeChar = CsvWriteFeature.ESCAPE_QUOTE_CHAR_WITH_ESCAPE_CHAR.enabledIn(csvFeatures);
         _cfgEscapeControlCharWithEscapeChar = CsvWriteFeature.ESCAPE_CONTROL_CHARS_WITH_ESCAPE_CHAR.enabledIn(csvFeatures);
 
@@ -259,6 +263,7 @@ public class CsvEncoder
         _cfgAlwaysQuoteStrings = base._cfgAlwaysQuoteStrings;
         _cfgAlwaysQuoteEmptyStrings = base._cfgAlwaysQuoteEmptyStrings;
         _cfgAlwaysQuoteNumbers = base._cfgAlwaysQuoteNumbers;
+        _cfgQuoteLeadingTrailingWhitespace = base._cfgQuoteLeadingTrailingWhitespace;
 
         _cfgEscapeQuoteCharWithEscapeChar = base._cfgEscapeQuoteCharWithEscapeChar;
         _cfgEscapeControlCharWithEscapeChar = base._cfgEscapeControlCharWithEscapeChar;
@@ -302,8 +307,7 @@ public class CsvEncoder
             }
         }
     }
-    
-    
+
     private final char _getQuoteCharEscapeChar(
             final boolean escapeQuoteCharWithEscapeChar,
             final int quoteCharacter,
@@ -341,22 +345,6 @@ public class CsvEncoder
     public CsvEncoder withSchema(CsvSchema schema) {
         return new CsvEncoder(this, schema);
     }
-
-    /*
-    public CsvEncoder overrideFormatFeatures(int feat) {
-        if (feat != _csvFeatures) {
-            _csvFeatures = feat;
-            _cfgOptimalQuoting = CsvGenerator.Feature.STRICT_CHECK_FOR_QUOTING.enabledIn(feat);
-            _cfgIncludeMissingTail = !CsvGenerator.Feature.OMIT_MISSING_TAIL_COLUMNS.enabledIn(feat);
-            _cfgAlwaysQuoteStrings = CsvGenerator.Feature.ALWAYS_QUOTE_STRINGS.enabledIn(feat);
-            _cfgAlwaysQuoteEmptyStrings = CsvGenerator.Feature.ALWAYS_QUOTE_EMPTY_STRINGS.enabledIn(feat);
-            _cfgAlwaysQuoteNumbers = CsvGenerator.Feature.ALWAYS_QUOTE_NUMBERS.enabledIn(feat);
-            _cfgEscapeQuoteCharWithEscapeChar = CsvGenerator.Feature.ESCAPE_QUOTE_CHAR_WITH_ESCAPE_CHAR.enabledIn(feat);
-            _cfgEscapeControlCharWithEscapeChar = Feature.ESCAPE_CONTROL_CHARS_WITH_ESCAPE_CHAR.enabledIn(feat);
-        }
-        return this;
-    }
-    */
 
     public CsvEncoder setOutputEscapes(int[] esc) {
         _outputEscapes = (esc != null) ? esc : sOutputEscapes;
@@ -1155,6 +1143,14 @@ public class CsvEncoder
         // 21-Mar-2014, tatu: If quoting disabled, don't quote
         if (_cfgQuoteCharacter < 0) {
             return false;
+        }
+        // [dataformats-text#210]: check for leading/trailing whitespace
+        if (_cfgQuoteLeadingTrailingWhitespace && length > 0) {
+            char first = value.charAt(0);
+            char last = value.charAt(length - 1);
+            if (first <= ' ' || last <= ' ') {
+                return true;
+            }
         }
         // may skip checks unless we want exact checking
         if (_cfgOptimalQuoting) {
