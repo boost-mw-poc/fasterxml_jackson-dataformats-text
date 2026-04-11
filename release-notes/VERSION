@@ -18,6 +18,10 @@ implementations)
 
 No changes since 3.1
 
+3.1.2 (11-Apr-2026)
+
+No changes since 3.1.1
+
 3.1.1 (27-Mar-2026)
 
 #615: (csv) Feature `CsvReadFeature.EMPTY_UNQUOTED_STRING_AS_NULL` ignored
