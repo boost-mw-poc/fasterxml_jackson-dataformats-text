@@ -84,7 +84,7 @@ No changes since 2.19.0
 #554: (csv) Enforce, document thread-safety of `CsvSchema`
  (requested by Gili T)
 
-2.18.7 (not yet released)
+2.18.7 (24-Apr-2026)
 
 #615: (csv) Feature `CsvReadFeature.EMPTY_UNQUOTED_STRING_AS_NULL` ignored
   when preceding column is quoted
