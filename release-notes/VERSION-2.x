@@ -20,6 +20,10 @@ Active Maintainers:
   value `"nullValue"`
  (requested by Dmitry B)
 
+2.21.3 (28-Apr-2026)
+
+No changes since 2.21.2
+
 2.21.2 (20-Mar-2026)
 
 #615: (csv) Feature `CsvReadFeature.EMPTY_UNQUOTED_STRING_AS_NULL` ignored
