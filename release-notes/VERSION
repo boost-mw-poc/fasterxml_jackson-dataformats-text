@@ -78,6 +78,12 @@ implementations)
   add `CsvReadFeature.CASE_INSENSITIVE_HEADERS`
  (reported by Tomas H)
  (fix by @cowtowncoder, w/ Claude code)
+#664: (toml) TOML parser: space separator in offset/local datetime not accepted 
+ (reported by @rajulbhatnagar)
+ (fix by @yawkat)
+#665: (toml) TOML parser: leading UTF-8 BOM rejected as 'Unknown token'
+ (reported by @rajulbhatnagar)
+ (fix by @yawkat)
 #672: (toml) Fix TOML int64 boundary parsing
   (fix by @yawkat)
 
