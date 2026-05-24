@@ -45,12 +45,10 @@ public class TomlParserTest extends TomlMapperTestBase {
     }
 
     static ObjectNode toml(TomlFactory factory, String toml) throws Exception {
-        // 07-Mar-2023, tatu: Due to refactoring, ended up here...
-        int options = TomlReadFeature.PARSE_JAVA_TIME.getMask();
         return TomlParser.parse(
                 factory,
                 testIOContext(),
-                options,
+                factory.getFormatReadFeatures(),
                 new StringReader(toml)
                 );
     }
@@ -506,6 +504,41 @@ public class TomlParserTest extends TomlMapperTestBase {
                 toml("odt1 = 1979-05-27T07:32:00z\n" +
                         "odt2 = 1979-05-27 07:32:00z")
         );
+    }
+
+    @Test
+    public void dateTimeValidationFeature() throws Exception {
+        // default string mode preserves historical behavior and does not validate date/time ranges
+        assertEquals(json("{\"date\": \"2024-02-30\"}"), toml("date = 2024-02-30"));
+
+        TomlFactory tomlFactory = TomlFactory.builder()
+                .enable(TomlReadFeature.VALIDATE_DATE_TIME)
+                .build();
+        // Valid literal under VALIDATE_DATE_TIME alone still surfaces as a string node
+        // (not a pojoNode) — guards against the flag silently aliasing PARSE_JAVA_TIME.
+        assertEquals(json("{\"date\": \"1979-05-27\"}"),
+                toml(tomlFactory, "date = 1979-05-27"));
+
+        TomlStreamReadException thrown = assertThrows(TomlStreamReadException.class, () ->
+                toml(tomlFactory, "date = 2024-02-30")
+        );
+        assertTrue(thrown.getMessage().contains("Invalid date/time value ('2024-02-30')"));
+        assertInstanceOf(java.time.format.DateTimeParseException.class, thrown.getCause());
+
+        thrown = assertThrows(TomlStreamReadException.class, () ->
+                toml(tomlFactory, "time = 24:00:00")
+        );
+        assertTrue(thrown.getMessage().contains("Invalid date/time value ('24:00:00')"));
+        assertInstanceOf(java.time.format.DateTimeParseException.class, thrown.getCause());
+
+        StringBuilder longTime = new StringBuilder("time = 12:00:00.");
+        for (int i = 0; i < 2000; i++) {
+            longTime.append('1');
+        }
+        thrown = assertThrows(TomlStreamReadException.class, () ->
+                toml(tomlFactory, longTime.toString())
+        );
+        assertTrue(thrown.getMessage().contains("[truncated]"));
     }
 
     @Test
