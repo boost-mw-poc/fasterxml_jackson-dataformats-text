@@ -50,6 +50,10 @@ Henning Langhorst (@HenningLanghorst)
  * Reported #615: (csv) Feature `CsvReadFeature.EMPTY_UNQUOTED_STRING_AS_NULL` ignored
   (3.1.1)
 
+Shanchao Li (@tonguaroot)
+ * Fixed #680: Restore `validateIntegerLength()` check in `_decodeBigInt`
+  (3.1.4)
+
 Rye Gleason (@ryegleason)
  * Reported #22: YAML anchors don't seem to work with `@JsonCreator`
   (3.2.0)
@@ -84,5 +88,4 @@ Tomas Hugec (@polyoxidonium)
  * Reported #657: (csv) CSV header validation ignores `ACCEPT_CASE_INSENSITIVE_PROPERTIES`:
    add `CsvReadFeature.CASE_INSENSITIVE_HEADERS`
   (3.2.0)
- 
  
