@@ -58,5 +58,7 @@ Henning Langhorst (@HenningLanghorst)
 
 Shanchao Li (@tonguaroot)
 
-* Fixed #680: Restore `validateIntegerLength()` check in `_decodeBigInt`
+* Fixed #679: (toml) Validate integer length for hex/octal/binary radix literals
+ (3.1.4)
+* Fixed #680: (yaml) Restore `validateIntegerLength()` check in `_decodeBigInt`
  (3.1.4)

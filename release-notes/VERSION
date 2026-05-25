@@ -20,7 +20,9 @@ No changes since 3.1
 
 3.1.4 (not yet released)
 
-#680: Restore `validateIntegerLength()` check in `_decodeBigInt`
+#679: (toml) Validate integer length for hex/octal/binary radix literals
+ (fix by @tonghuaroot)
+#680: (yaml) Restore `validateIntegerLength()` check in `_decodeBigInt`
  (fix by @tonghuaroot)
 
 3.1.3 (01-May-2026)
