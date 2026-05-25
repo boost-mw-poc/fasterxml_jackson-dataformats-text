@@ -51,7 +51,9 @@ Henning Langhorst (@HenningLanghorst)
   (3.1.1)
 
 Shanchao Li (@tonguaroot)
- * Fixed #680: Restore `validateIntegerLength()` check in `_decodeBigInt`
+ * Fixed #679: (toml) Validate integer length for hex/octal/binary radix literals
+  (3.1.4)
+ * Fixed #680: (yaml) Restore `validateIntegerLength()` check in `_decodeBigInt`
   (3.1.4)
 
 Rye Gleason (@ryegleason)
@@ -88,4 +90,3 @@ Tomas Hugec (@polyoxidonium)
  * Reported #657: (csv) CSV header validation ignores `ACCEPT_CASE_INSENSITIVE_PROPERTIES`:
    add `CsvReadFeature.CASE_INSENSITIVE_HEADERS`
   (3.2.0)
- 
