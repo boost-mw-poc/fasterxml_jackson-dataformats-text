@@ -20,7 +20,16 @@ Active Maintainers:
   value `"nullValue"`
  (requested by Dmitry B)
 
-2.21.1 (not yet released)
+2.21.4 (not yet released)
+
+#679: (toml) Validate integer length for hex/octal/binary radix literals
+ (fix by @tonghuaroot)
+
+2.21.3 (28-Apr-2026)
+
+No changes since 2.21.2
+
+2.21.2 (20-Mar-2026)
 
 #615: (csv) Feature `CsvReadFeature.EMPTY_UNQUOTED_STRING_AS_NULL` ignored
   when preceding column is quoted
@@ -58,6 +67,11 @@ No changes since 2.20.0
  for non-numeric tokens
 - Generate SBOMs [JSTEP-14]
 
+2.19.5 (not yet released)
+
+#613: (csv) Support `StreamReadConstraints.maxDocumentLength()` validation
+  for CSV module
+
 2.19.4 (29-Oct-2025)
 2.19.3 (29-Oct-2025)
 2.19.2 (18-Jul-2025)
@@ -79,7 +93,12 @@ No changes since 2.19.0
 #554: (csv) Enforce, document thread-safety of `CsvSchema`
  (requested by Gili T)
 
-2.18.7 (not yet released)
+2.18.8 (not yet released)
+
+#679: (toml) Validate integer length for hex/octal/binary radix literals
+ (fix by @tonghuaroot)
+
+2.18.7 (24-Apr-2026)
 
 #615: (csv) Feature `CsvReadFeature.EMPTY_UNQUOTED_STRING_AS_NULL` ignored
   when preceding column is quoted
