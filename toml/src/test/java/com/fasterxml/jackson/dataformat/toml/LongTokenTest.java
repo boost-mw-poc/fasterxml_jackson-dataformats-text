@@ -92,10 +92,10 @@ public class LongTokenTest extends TomlMapperTestBase {
         }
         try {
             mapper.readTree(toml.toString());
-            Assert.fail("expected TomlStreamReadException for radix integer of length " + (prefixAndFirstDigit.length() + SCALE));
+            fail("expected TomlStreamReadException for radix integer of length " + (prefixAndFirstDigit.length() + SCALE));
         } catch (TomlStreamReadException e) {
-            Assert.assertTrue("exception message contains truncated number: " + e.getMessage(),
-                    e.getMessage().contains("[truncated]"));
+            assertTrue(e.getMessage().contains("[truncated]"),
+                    "exception message contains truncated number: " + e.getMessage());
         }
     }
 
