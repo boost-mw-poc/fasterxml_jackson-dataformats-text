@@ -82,6 +82,11 @@ No changes since 2.19.0
 #554: (csv) Enforce, document thread-safety of `CsvSchema`
  (requested by Gili T)
 
+2.18.8 (not yet released)
+
+#679: (toml) Validate integer length for hex/octal/binary radix literals
+ (fix by @tonghuaroot)
+
 2.18.7 (24-Apr-2026)
 
 #615: (csv) Feature `CsvReadFeature.EMPTY_UNQUOTED_STRING_AS_NULL` ignored
